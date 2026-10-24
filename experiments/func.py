@@ -104,12 +104,9 @@ def parse_expression(source: str):
     return tree
 
 
-def verify(directory: Path, bench_id: str, output: str) -> dict[str, Any]:
-    """Re-evaluate the printed expression with the Python theory and check
-    every example. Returns ``solution``, ``size`` and ``verified``."""
-    match = re.match(r"\S+ = (.+)$", output.strip())
-    if not match:
-        return {"solution": None, "size": None, "verified": None}
+def load_theory(directory: Path, bench_id: str):
+    """Instantiate a benchmark's theory with the Python benchmark code.
+    Returns ``(theory, positives, negatives)``, the examples as labels."""
     metadata = json.loads((directory / "benchmark.json").read_text())[bench_id]
     models = {}
     for file in metadata.get("models", [metadata.get("model")]):
@@ -128,6 +125,24 @@ def verify(directory: Path, bench_id: str, output: str) -> dict[str, Any]:
         positives = {models[name] for name in metadata["positive"]}
         negatives = {models[name] for name in metadata["negative"]}
         theory = module.theory(positives, negatives)
+    return theory, positives, negatives
+
+
+def value_bits(bench_set: str, bench_id: str) -> dict[str, int]:
+    """Bits in one value of each grammar nonterminal, as ``synth_fun``
+    computes them; the first entry is the start symbol."""
+    theory, _, _ = load_theory(family_directory(bench_set, bench_id), bench_id)
+    languages = getattr(theory, "languages", {})
+    return {symbol: languages.get(symbol, theory.language).bit_width() for symbol in theory.grammar}
+
+
+def verify(directory: Path, bench_id: str, output: str) -> dict[str, Any]:
+    """Re-evaluate the printed expression with the Python theory and check
+    every example. Returns ``solution``, ``size`` and ``verified``."""
+    match = re.match(r"\S+ = (.+)$", output.strip())
+    if not match:
+        return {"solution": None, "size": None, "verified": None}
+    theory, positives, negatives = load_theory(directory, bench_id)
 
     def evaluate(tree):
         name, arguments = tree
@@ -194,7 +209,10 @@ def compute(bench_set: str, bench_id: str, method: str, method_configs: Mapping[
     """Map an uncached method-specific instance description to its result."""
     directory = family_directory(bench_set, bench_id)
     if method == "loom2.openmp":
-        return compute_loom2_openmp(directory, bench_id, method_configs)
+        return {
+            **compute_loom2_openmp(directory, bench_id, method_configs),
+            "value_bits": value_bits(bench_set, bench_id),
+        }
     raise ValueError(f"unknown method: {method}")
 
 
