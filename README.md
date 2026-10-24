@@ -1,0 +1,95 @@
+# Loom 2
+
+Loom 2 is a Python/Rust compiler for syntax-guided synthesis over finite
+Boolean semantics. Constructors are ordinary Python functions over `Vec` bit
+tensors. They are traced into a Rust tensor IR, lowered to packed `i64` word
+programs, emitted as MLIR with Melior using only upstream dialects, and
+compiled through LLVM into a parallel native enumerator.
+
+See [the architecture guide](docs/architecture.md) for each stage.
+
+## Example
+
+```python
+import loom2
+
+Strings = loom2.Vec(**{"": bool, "a": bool, "aa": bool})
+
+@loom2.compile
+def re_union(a: Strings, b: Strings):
+    return a | b
+```
+
+`loom2.synth_fun(output, language=..., grammar=..., constraints=...)` builds
+an executable that prints the smallest expression satisfying the constraints.
+
+Calling a compiled function on runtime values runs it through the LLVM JIT.
+The first call traces it, lowers it with the synthesizer's own pipeline and
+compiles it in-process; later calls reuse the code.
+
+```python
+value = Strings({"": True, "a": False, "aa": True})
+re_union(value, value)        # JIT-compiled on first call
+```
+
+`loom2.compile(..., jit=False)` (or `LOOM2_JIT=0`) keeps the Python body;
+`jit=True` raises instead of falling back when a function cannot be JIT-ed.
+
+## Building
+
+The default Rust build needs no LLVM:
+
+```console
+cargo test
+```
+
+Native code generation needs LLVM/MLIR 23. `mlir-sys` locates it through
+`$MLIR_SYS_230_PREFIX/bin/llvm-config`; `TABLEGEN_230_PREFIX` must point at
+the same prefix. If your installation keeps `llvm-config` elsewhere (vcpkg
+uses `tools/llvm/`), point both variables at a directory whose `bin/`
+contains a symlink to it.
+
+```console
+export MLIR_SYS_230_PREFIX=/path/to/llvm-23 TABLEGEN_230_PREFIX=/path/to/llvm-23
+cargo test --features llvm
+maturin develop --release --features llvm,pyo3/extension-module
+python -m unittest discover -s tests
+```
+
+Linking the generated executable uses `CC`/`CXX` (default `cc`/`c++`) and
+`-lomp`; set `LOOM2_OPENMP_LIBRARY_DIR` at build time if `libomp` is outside
+the default search path.
+
+Regenerate the native type stub after changing a PyO3 API:
+
+```console
+cargo run --bin generate_stubs
+```
+
+## Benchmarks
+
+`benchmark/Reg` (57 regular expressions over `{0,1}`), `benchmark/Reg+`
+(322 Regel DeepRegex and StackOverflow regular expressions), and
+`benchmark/FO` (306 first-order invariants from 28 Ivy protocol theories),
+`benchmark/LTL` (802 samples2LTL lasso-trace problems), and `benchmark/CTL`
+(2107 LearnCTL Kripke-structure problems) hold Loom's suites as Python and
+JSON data:
+
+| Path                     | Contents                                                  |
+| ------------------------ | --------------------------------------------------------- |
+| `benchmark.json`         | per benchmark: `theory`, `model`, `positive`, `negative`  |
+| `models/<model>.json`    | Reg: strings; FO: structures; LTL: lassos; CTL: Kripke    |
+| `theories/<theory>.py`   | Reg/Reg+: grammar, character predicates, `synth_fun`      |
+| `theories/<theory>.json` | FO: signature and per-nonterminal productions by kind     |
+| `theories/<theory>.json` | LTL/CTL: constructors by kind (`G`, `U`, `AF`, `EU`, ...) |
+| `fo.py`, `ltl.py`, `ctl.py` | interpret a theory JSON with the `Vec` API             |
+| `regex.py`               | shared regex theory builder (one substring `Literal`)     |
+| `run.py`                 | build one benchmark and keep every stage                  |
+
+```console
+python benchmark/Reg+/run.py 0030 --run
+```
+
+writes `01-tensor-fn.ir`, `02-fused.ir`, `03-loops.ir`, the MLIR/LLVM
+stages through `08-program.o`, the executable `09-reg-plus-0030`, and
+`10-result.txt` to `benchmark/Reg+/0030-ir/`.

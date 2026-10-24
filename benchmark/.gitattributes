@@ -1,0 +1,4 @@
+LTL/benchmark.json filter=lfs diff=lfs merge=lfs -text
+LTL/models/*.json filter=lfs diff=lfs merge=lfs -text
+CTL/benchmark.json filter=lfs diff=lfs merge=lfs -text
+CTL/models/*.json filter=lfs diff=lfs merge=lfs -text

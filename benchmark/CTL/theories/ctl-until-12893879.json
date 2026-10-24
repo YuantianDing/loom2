@@ -1,0 +1,54 @@
+{
+ "source": "theories/ctl-until-12893879.sl",
+ "constructors": [
+  [
+   "ap.p0",
+   "ap",
+   "p0"
+  ],
+  [
+   "ap.p1",
+   "ap",
+   "p1"
+  ],
+  [
+   "ap.p2",
+   "ap",
+   "p2"
+  ],
+  [
+   "ap.p3",
+   "ap",
+   "p3"
+  ],
+  [
+   "ap.p4",
+   "ap",
+   "p4"
+  ],
+  [
+   "ctl.top",
+   "top"
+  ],
+  [
+   "ctl.not",
+   "not"
+  ],
+  [
+   "ctl.or",
+   "or"
+  ],
+  [
+   "ctl.EX",
+   "EX"
+  ],
+  [
+   "ctl.EG",
+   "EG"
+  ],
+  [
+   "ctl.EU",
+   "EU"
+  ]
+ ]
+}

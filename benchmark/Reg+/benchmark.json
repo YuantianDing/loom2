@@ -1,0 +1,6146 @@
+{
+    "0001": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00162",
+            "w00164",
+            "w00172",
+            "w00176",
+            "w00177",
+            "w00187",
+            "w00202"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00017",
+            "w00019",
+            "w00020",
+            "w00038",
+            "wempty_deepregex"
+        ]
+    },
+    "0002": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01033",
+            "w01071",
+            "w01074",
+            "w01174",
+            "w01197",
+            "w01199",
+            "w01215"
+        ],
+        "negative": [
+            "w00009",
+            "w00011",
+            "w00019",
+            "w00038",
+            "w00039",
+            "w00394",
+            "w00530"
+        ]
+    },
+    "0003": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00039",
+            "w00103",
+            "w00119",
+            "w00120",
+            "w00152",
+            "w00894"
+        ],
+        "negative": [
+            "wempty_deepregex"
+        ]
+    },
+    "0004": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00224",
+            "w00243",
+            "w00541",
+            "w00542",
+            "w00544",
+            "w00734",
+            "w00735"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00012",
+            "w00038",
+            "w00039",
+            "w00169",
+            "w00229"
+        ]
+    },
+    "0005": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00530",
+            "w00565",
+            "w00606",
+            "w00660",
+            "w00675",
+            "w01008",
+            "w01165"
+        ],
+        "negative": [
+            "w00011",
+            "w00038",
+            "w00063",
+            "w00100",
+            "w00115",
+            "w00230",
+            "wempty_deepregex"
+        ]
+    },
+    "0006": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00009",
+            "w00011",
+            "w00019",
+            "w00031",
+            "w00038",
+            "w00041",
+            "w00044"
+        ]
+    },
+    "0007": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00314",
+            "w00617",
+            "w00700",
+            "w00862",
+            "w00863",
+            "w00908",
+            "w01326"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00020",
+            "w00038",
+            "w00313",
+            "wempty_deepregex"
+        ]
+    },
+    "0008": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00224",
+            "w00245",
+            "w00284",
+            "w00285",
+            "w00287",
+            "w00759",
+            "w01306"
+        ],
+        "negative": [
+            "w00002",
+            "w00060",
+            "w00098",
+            "w00101",
+            "w00117",
+            "w00881",
+            "wempty_deepregex"
+        ]
+    },
+    "0009": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00112",
+            "w00119",
+            "w00137",
+            "w00229",
+            "w00239",
+            "w00272",
+            "w00273"
+        ],
+        "negative": [
+            "w00007",
+            "w00009",
+            "w00011",
+            "w00038",
+            "w00172",
+            "w00180",
+            "w00191"
+        ]
+    },
+    "0010": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00002",
+            "w00009",
+            "w00011",
+            "w00038",
+            "w00230",
+            "w00500",
+            "w00506"
+        ],
+        "negative": [
+            "wempty_deepregex"
+        ]
+    },
+    "0011": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00079",
+            "w00154",
+            "w00246",
+            "w00341",
+            "w00640",
+            "w00649",
+            "w00695"
+        ],
+        "negative": [
+            "w00003",
+            "w00009",
+            "w00019",
+            "w00041",
+            "w00102",
+            "w00175",
+            "w00383"
+        ]
+    },
+    "0012": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00073",
+            "w00223",
+            "w00242",
+            "w00363",
+            "w00492",
+            "w00528",
+            "w00767"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00019",
+            "w00038",
+            "w00079",
+            "w00168",
+            "wempty_deepregex"
+        ]
+    },
+    "0013": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00170",
+            "w00173",
+            "w00225",
+            "w00246",
+            "w00359",
+            "w00407",
+            "w00450"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00021",
+            "w00038",
+            "w00312",
+            "wempty_deepregex"
+        ]
+    },
+    "0014": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00671",
+            "w00864",
+            "w01009",
+            "w01013",
+            "w01264",
+            "w01337",
+            "w01385"
+        ],
+        "negative": [
+            "w00002",
+            "w00117",
+            "w00119",
+            "w00218",
+            "w00672",
+            "w00684",
+            "wempty_deepregex"
+        ]
+    },
+    "0015": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00079",
+            "w00172",
+            "w00185",
+            "w00229",
+            "w00350",
+            "w00352",
+            "w00531"
+        ],
+        "negative": [
+            "w00003",
+            "w00011",
+            "w00020",
+            "w00038",
+            "w00074",
+            "w00169",
+            "w00224"
+        ]
+    },
+    "0016": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00011",
+            "w00019",
+            "w00020",
+            "w00036",
+            "w00038",
+            "w00039",
+            "w00041"
+        ]
+    },
+    "0017": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00020",
+            "w00021",
+            "w00038",
+            "w00039"
+        ],
+        "negative": [
+            "w00009",
+            "w00011",
+            "w00113",
+            "w00170",
+            "w00173",
+            "w00230",
+            "wempty_deepregex"
+        ]
+    },
+    "0018": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00064",
+            "w00067",
+            "w00079",
+            "w00172",
+            "w00178",
+            "w00229",
+            "w00263"
+        ],
+        "negative": [
+            "w00009",
+            "w00011",
+            "w00063",
+            "w00115",
+            "w00312",
+            "w00858",
+            "wempty_deepregex"
+        ]
+    },
+    "0019": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00020",
+            "w00023",
+            "w00038",
+            "w00041",
+            "w00044",
+            "w00048"
+        ],
+        "negative": [
+            "w00002",
+            "w00009",
+            "w00011",
+            "w00079",
+            "w00230",
+            "w00232",
+            "wempty_deepregex"
+        ]
+    },
+    "0020": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00215",
+            "w00262",
+            "w00275",
+            "w00288",
+            "w00595",
+            "w00730",
+            "w00754"
+        ],
+        "negative": [
+            "w00011",
+            "w00012",
+            "w00038",
+            "w00041",
+            "w00229",
+            "w00443",
+            "w00445"
+        ]
+    },
+    "0021": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00907",
+            "w00909",
+            "w00937",
+            "w00943",
+            "w01039",
+            "w01080",
+            "w01081"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00020",
+            "w00038",
+            "w00230",
+            "wempty_deepregex"
+        ]
+    },
+    "0022": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00011",
+            "w00038",
+            "w00039",
+            "w00041",
+            "w00048",
+            "w00054",
+            "w01282"
+        ],
+        "negative": [
+            "w00003",
+            "w00006",
+            "w00007",
+            "w00009",
+            "w00021",
+            "wempty_deepregex"
+        ]
+    },
+    "0023": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00218",
+            "w00240",
+            "w00270",
+            "w00510",
+            "w00765",
+            "w00789",
+            "w01075"
+        ],
+        "negative": [
+            "w00009",
+            "w00010",
+            "w00011",
+            "w00020",
+            "w00038",
+            "w00039",
+            "w00114"
+        ]
+    },
+    "0024": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00011",
+            "w00073",
+            "w00223",
+            "w00393",
+            "w00449",
+            "w00528",
+            "w00910"
+        ],
+        "negative": [
+            "wempty_deepregex"
+        ]
+    },
+    "0025": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00229",
+            "w00524",
+            "w00741",
+            "w00934",
+            "w01074",
+            "w01199",
+            "w01302"
+        ],
+        "negative": [
+            "w00020",
+            "w00079",
+            "w00108",
+            "w00119",
+            "w00154",
+            "w00155",
+            "w00172"
+        ]
+    },
+    "0026": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00165",
+            "w00166",
+            "w00438",
+            "w00440",
+            "w00901",
+            "w01030",
+            "w01031"
+        ],
+        "negative": [
+            "w00010",
+            "w00038",
+            "w00217",
+            "w00521",
+            "w00739",
+            "w01070",
+            "wempty_deepregex"
+        ]
+    },
+    "0027": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00217",
+            "w00355",
+            "w00526",
+            "w00527",
+            "w00729",
+            "w00947",
+            "w01069"
+        ],
+        "negative": [
+            "w00010",
+            "w00011",
+            "w00119",
+            "w00132",
+            "w00136",
+            "w00391",
+            "wempty_deepregex"
+        ]
+    },
+    "0028": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00074",
+            "w00118",
+            "w00224",
+            "w00523",
+            "w00673",
+            "w00734",
+            "w01071"
+        ],
+        "negative": [
+            "w00003",
+            "w00019",
+            "w00021",
+            "w00038",
+            "w00108",
+            "w00168",
+            "w00223"
+        ]
+    },
+    "0029": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00073",
+            "w00318",
+            "w00340",
+            "w00613",
+            "w00616",
+            "w00831",
+            "w00986"
+        ],
+        "negative": [
+            "w00019",
+            "w00116",
+            "w00129",
+            "w00152",
+            "w00223",
+            "w00435",
+            "w00694"
+        ]
+    },
+    "0030": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00010",
+            "w00019",
+            "w00020",
+            "w00038",
+            "w00229",
+            "w00441",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00065",
+            "w00068",
+            "w00073",
+            "w00079",
+            "w00317",
+            "w00319"
+        ]
+    },
+    "0031": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01000",
+            "w01067",
+            "w01074",
+            "w01160",
+            "w01162",
+            "w01196",
+            "w01199"
+        ],
+        "negative": [
+            "w00010",
+            "w00038",
+            "w00106",
+            "w00229",
+            "w00385",
+            "w00524",
+            "wempty_deepregex"
+        ]
+    },
+    "0032": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00325",
+            "w00330",
+            "w00331",
+            "w00614",
+            "w00829",
+            "w00837",
+            "w00989"
+        ],
+        "negative": [
+            "w00010",
+            "w00038",
+            "w00068",
+            "w00079",
+            "w00215",
+            "w00217",
+            "w00348"
+        ]
+    },
+    "0033": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00020",
+            "w00038",
+            "w00169",
+            "w00172",
+            "w00217",
+            "w00224",
+            "w00229"
+        ],
+        "negative": [
+            "w00003",
+            "w00010",
+            "w00019",
+            "w00068",
+            "w00105",
+            "w00106",
+            "w00108"
+        ]
+    },
+    "0034": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00068",
+            "w00324",
+            "w00503",
+            "w00637",
+            "w00676",
+            "w00832"
+        ],
+        "negative": [
+            "w00010",
+            "w00105",
+            "w00108",
+            "w00149",
+            "w00152",
+            "w00154",
+            "wempty_deepregex"
+        ]
+    },
+    "0035": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00073",
+            "w00107",
+            "w00152",
+            "w00168",
+            "w00223",
+            "w00504",
+            "w00522"
+        ],
+        "negative": [
+            "w00019",
+            "w00149",
+            "w00153",
+            "w00154",
+            "w00155",
+            "w00156",
+            "wempty_deepregex"
+        ]
+    },
+    "0036": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00019",
+            "w00065",
+            "w00073",
+            "w00152",
+            "w00317",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00010",
+            "w00011",
+            "w00012",
+            "w00013",
+            "w00038",
+            "w00039",
+            "w00040"
+        ]
+    },
+    "0037": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00010",
+            "w00038",
+            "w00106",
+            "w00108",
+            "w00348",
+            "w00423",
+            "w00522"
+        ],
+        "negative": [
+            "w00003",
+            "w00004",
+            "w00019",
+            "w00065",
+            "w00152",
+            "w00317",
+            "wempty_deepregex"
+        ]
+    },
+    "0038": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00229",
+            "w00247",
+            "w00254",
+            "w00259",
+            "w00268",
+            "w00274",
+            "w00310"
+        ],
+        "negative": [
+            "w00072",
+            "w00169",
+            "w00172",
+            "w00191",
+            "w00194",
+            "w00199",
+            "wempty_deepregex"
+        ]
+    },
+    "0039": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00493",
+            "w00724",
+            "w00726",
+            "w00738",
+            "w00815",
+            "w00932",
+            "w00946"
+        ],
+        "negative": [
+            "w00003",
+            "w00076",
+            "w00188",
+            "w00215",
+            "w00236",
+            "w00482",
+            "w00497"
+        ]
+    },
+    "0040": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00211",
+            "w00218",
+            "w00545",
+            "w00646",
+            "w00817",
+            "w00968",
+            "w01129"
+        ],
+        "negative": [
+            "w00038",
+            "w00041",
+            "w00179",
+            "w00280",
+            "w00302",
+            "w00601",
+            "w00642"
+        ]
+    },
+    "0041": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00218",
+            "w00222",
+            "w00224",
+            "w00511",
+            "w00740",
+            "w00758"
+        ],
+        "negative": [
+            "w00020",
+            "w00162",
+            "w00169",
+            "w00446",
+            "w00457",
+            "w00461",
+            "w00723"
+        ]
+    },
+    "0042": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00065",
+            "w00079",
+            "w00317",
+            "w00334",
+            "w00346",
+            "w00367",
+            "w00627"
+        ],
+        "negative": [
+            "w00110",
+            "w00215",
+            "w00279",
+            "w00307",
+            "w00386",
+            "w00426",
+            "wempty_deepregex"
+        ]
+    },
+    "0043": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00093",
+            "w00095",
+            "w00097",
+            "w00119",
+            "w00146",
+            "w00158",
+            "w00214"
+        ],
+        "negative": [
+            "w00037",
+            "w00077",
+            "w00145",
+            "w00205",
+            "w00278",
+            "w00281",
+            "wempty_deepregex"
+        ]
+    },
+    "0044": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00984",
+            "w01065",
+            "w01303",
+            "w01353",
+            "w01378",
+            "w01499",
+            "w01501"
+        ],
+        "negative": [
+            "w00215",
+            "w00427",
+            "w00652",
+            "w00750",
+            "w00757",
+            "w00825",
+            "w00928"
+        ]
+    },
+    "0045": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01280",
+            "w01349",
+            "w01434",
+            "w01474",
+            "w01475",
+            "w01507",
+            "w01520"
+        ],
+        "negative": [
+            "w00309",
+            "w00603",
+            "w00819",
+            "w00980",
+            "w01141",
+            "w01232",
+            "w01236"
+        ]
+    },
+    "0046": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00225",
+            "w00515",
+            "w01014",
+            "w01356",
+            "w01530",
+            "w01542",
+            "w01543"
+        ],
+        "negative": [
+            "w00024",
+            "w00172",
+            "w00345",
+            "w00707",
+            "w00981",
+            "w01283",
+            "w01444"
+        ]
+    },
+    "0047": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00494",
+            "w00523",
+            "w00534",
+            "w00540",
+            "w00792",
+            "w00806",
+            "w00971"
+        ],
+        "negative": [
+            "w00453",
+            "w00483",
+            "w00484",
+            "w00539",
+            "w00556",
+            "w00600",
+            "w00602"
+        ]
+    },
+    "0048": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00234",
+            "w00262",
+            "w00277",
+            "w00289",
+            "w00290",
+            "w00303",
+            "w00304"
+        ],
+        "negative": [
+            "w00057",
+            "w00291",
+            "w00292",
+            "w00293",
+            "w00577",
+            "w00816",
+            "wempty_deepregex"
+        ]
+    },
+    "0049": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01081",
+            "w01098",
+            "w01107",
+            "w01108",
+            "w01121",
+            "w01131",
+            "w01133"
+        ],
+        "negative": [
+            "w00587",
+            "w00942",
+            "w01101",
+            "w01102",
+            "w01128",
+            "w01557",
+            "wempty_deepregex"
+        ]
+    },
+    "0050": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00229",
+            "w00238",
+            "w00520",
+            "w00778",
+            "w00779",
+            "w00975",
+            "w01243"
+        ],
+        "negative": [
+            "w01248",
+            "w01297",
+            "w01393",
+            "w01398",
+            "w01429",
+            "w01461",
+            "w01470"
+        ]
+    },
+    "0051": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00215",
+            "w01063",
+            "w01296",
+            "w01484",
+            "w01510",
+            "w01518",
+            "w01524"
+        ],
+        "negative": [
+            "w00003",
+            "w00091",
+            "w00105",
+            "w00203",
+            "w01184",
+            "w01468",
+            "wempty_deepregex"
+        ]
+    },
+    "0052": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01328",
+            "w01379",
+            "w01462",
+            "w01476",
+            "w01493",
+            "w01544",
+            "w01558"
+        ],
+        "negative": [
+            "w00003",
+            "w00825",
+            "w01052",
+            "w01458",
+            "w01546",
+            "w01554",
+            "wempty_deepregex"
+        ]
+    },
+    "0053": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00380",
+            "w00472",
+            "w00495",
+            "w00604",
+            "w00605",
+            "w01336",
+            "w01419"
+        ],
+        "negative": [
+            "w00317",
+            "w00471",
+            "w00491",
+            "w00497",
+            "w00501",
+            "w00537",
+            "wempty_deepregex"
+        ]
+    },
+    "0054": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00208",
+            "w00779",
+            "w00977",
+            "w01394",
+            "w01403",
+            "w01480",
+            "w01519"
+        ],
+        "negative": [
+            "w00856",
+            "w00984",
+            "w01191",
+            "w01273",
+            "w01279",
+            "w01335",
+            "w01447"
+        ]
+    },
+    "0055": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00973",
+            "w00974",
+            "w01123",
+            "w01373",
+            "w01376",
+            "w01410",
+            "w01411"
+        ],
+        "negative": [
+            "w01224",
+            "w01237",
+            "w01249",
+            "w01342",
+            "w01363",
+            "w01487",
+            "wempty_deepregex"
+        ]
+    },
+    "0056": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01112",
+            "w01114",
+            "w01115",
+            "w01122",
+            "w01125",
+            "w01535",
+            "w01552"
+        ],
+        "negative": [
+            "w00783",
+            "w00965",
+            "w01028",
+            "w01100",
+            "w01111",
+            "w01113",
+            "w01445"
+        ]
+    },
+    "0057": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00524",
+            "w00543",
+            "w00761",
+            "w01369",
+            "w01532",
+            "w01540",
+            "w01550"
+        ],
+        "negative": [
+            "w00229",
+            "w00255",
+            "w00267",
+            "w00321",
+            "w00376",
+            "w00569",
+            "wempty_deepregex"
+        ]
+    },
+    "0058": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00198",
+            "w00204",
+            "w00210",
+            "w00712",
+            "w00715",
+            "w01288",
+            "w01537"
+        ],
+        "negative": [
+            "w00034",
+            "w00092",
+            "w00094",
+            "w00940",
+            "w01103",
+            "w01104",
+            "wempty_deepregex"
+        ]
+    },
+    "0059": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00011",
+            "w01211",
+            "w01270",
+            "w01341",
+            "w01346",
+            "w01390"
+        ],
+        "negative": [
+            "w00022",
+            "w00079",
+            "w00555",
+            "w00679",
+            "w01099",
+            "w01339",
+            "wempty_deepregex"
+        ]
+    },
+    "0060": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00020",
+            "w00169",
+            "w00480",
+            "w00481",
+            "w00711",
+            "w01051",
+            "w01194"
+        ],
+        "negative": [
+            "w00401",
+            "w00733",
+            "w00853",
+            "w00872",
+            "w01223",
+            "w01345",
+            "wempty_deepregex"
+        ]
+    },
+    "0061": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00226",
+            "w00297",
+            "w00972",
+            "w01090",
+            "w01140",
+            "w01240",
+            "w01413"
+        ],
+        "negative": [
+            "w00020",
+            "w00037",
+            "w00530",
+            "w01149",
+            "w01225",
+            "w01301",
+            "wempty_deepregex"
+        ]
+    },
+    "0062": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00269",
+            "w00766",
+            "w01136",
+            "w01251",
+            "w01401",
+            "w01405",
+            "w01415"
+        ],
+        "negative": [
+            "w00905",
+            "w00988",
+            "w01019",
+            "w01289",
+            "w01340",
+            "w01420",
+            "wempty_deepregex"
+        ]
+    },
+    "0063": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00059",
+            "w00995",
+            "w01275",
+            "w01322",
+            "w01370",
+            "w01432"
+        ],
+        "negative": [
+            "w00020",
+            "w00139",
+            "w00962",
+            "w01010",
+            "w01110",
+            "w01263",
+            "wempty_deepregex"
+        ]
+    },
+    "0064": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01422",
+            "w01483",
+            "w01545",
+            "w01547",
+            "w01549",
+            "w01551",
+            "w01553"
+        ],
+        "negative": [
+            "w00053",
+            "w00451",
+            "w01467",
+            "w01481",
+            "w01517",
+            "w01534",
+            "w01538"
+        ]
+    },
+    "0065": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00038",
+            "w00710",
+            "w00867",
+            "w00897",
+            "w01138",
+            "w01139"
+        ],
+        "negative": [
+            "w00364",
+            "w00868",
+            "w01022",
+            "w01155",
+            "w01192",
+            "w01230",
+            "wempty_deepregex"
+        ]
+    },
+    "0066": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00626",
+            "w00644",
+            "w01152",
+            "w01258",
+            "w01329",
+            "w01331"
+        ],
+        "negative": [
+            "w00037",
+            "w00059",
+            "w00125",
+            "w00409",
+            "w00750",
+            "w01209",
+            "w01252"
+        ]
+    },
+    "0067": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01259",
+            "w01417",
+            "w01515",
+            "w01522",
+            "w01523",
+            "w01536",
+            "w01548"
+        ],
+        "negative": [
+            "w00065",
+            "w00082",
+            "w01153",
+            "w01365",
+            "w01382",
+            "w01418",
+            "wempty_deepregex"
+        ]
+    },
+    "0068": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01423",
+            "w01452",
+            "w01473",
+            "w01479",
+            "w01482",
+            "w01485",
+            "w01506"
+        ],
+        "negative": [
+            "w00027",
+            "w00040",
+            "w01087",
+            "w01093",
+            "w01427",
+            "w01428",
+            "wempty_deepregex"
+        ]
+    },
+    "0069": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00696",
+            "w00876",
+            "w00952",
+            "w00990",
+            "w01021",
+            "w01170",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00048",
+            "w00464",
+            "w00713",
+            "w00721",
+            "w01130",
+            "w01219",
+            "w01348"
+        ]
+    },
+    "0070": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00079",
+            "w00081",
+            "w00084",
+            "w00085",
+            "w00089",
+            "w01463",
+            "w01527"
+        ],
+        "negative": [
+            "w00038",
+            "w00394",
+            "w00621",
+            "w01157",
+            "w01312",
+            "w01333",
+            "wempty_deepregex"
+        ]
+    },
+    "0071": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00253",
+            "w00550",
+            "w00763",
+            "w00979",
+            "w01226",
+            "w01227",
+            "w01366"
+        ],
+        "negative": [
+            "w00041",
+            "w01091",
+            "w01096",
+            "w01169",
+            "w01310",
+            "w01421",
+            "wempty_deepregex"
+        ]
+    },
+    "0072": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01247",
+            "w01298",
+            "w01368",
+            "w01381",
+            "w01392",
+            "w01472",
+            "w01521"
+        ],
+        "negative": [
+            "w00172",
+            "w00459",
+            "w00728",
+            "w00834",
+            "w00866",
+            "w01064",
+            "wempty_deepregex"
+        ]
+    },
+    "0073": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00699",
+            "w00722",
+            "w00956",
+            "w01053",
+            "w01142",
+            "w01180",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00003",
+            "w00012",
+            "w00016",
+            "w01018",
+            "w01150",
+            "w01173",
+            "w01271"
+        ]
+    },
+    "0074": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00216",
+            "w00230",
+            "w00264",
+            "w00266",
+            "w00502",
+            "w00943",
+            "w01220"
+        ],
+        "negative": [
+            "w00056",
+            "w00283",
+            "w00382",
+            "w00814",
+            "w00957",
+            "w01321",
+            "wempty_deepregex"
+        ]
+    },
+    "0075": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00737",
+            "w00742",
+            "w00745",
+            "w00746",
+            "w00751",
+            "w00795",
+            "w00818"
+        ],
+        "negative": [
+            "w00312",
+            "w00429",
+            "w00524",
+            "w00732",
+            "w00793",
+            "w00810",
+            "wempty_deepregex"
+        ]
+    },
+    "0076": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00335",
+            "w00431",
+            "w00811",
+            "w00812",
+            "w01490",
+            "w01491"
+        ],
+        "negative": [
+            "w00631",
+            "w00639",
+            "w00697",
+            "w01441",
+            "w01492",
+            "w01541",
+            "wempty_deepregex"
+        ]
+    },
+    "0077": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00126",
+            "w00135",
+            "w00507",
+            "w00933",
+            "w01119",
+            "w01134",
+            "w01437"
+        ],
+        "negative": [
+            "w00009",
+            "w00012",
+            "w00102",
+            "w00219",
+            "w00599",
+            "w00741",
+            "wempty_deepregex"
+        ]
+    },
+    "0078": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00079",
+            "w00080",
+            "w00319",
+            "w00359",
+            "w00635",
+            "w00987"
+        ],
+        "negative": [
+            "w00039",
+            "w00067",
+            "w00382",
+            "w00576",
+            "w01127",
+            "w01514",
+            "wempty_deepregex"
+        ]
+    },
+    "0079": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00172",
+            "w00186",
+            "w01035",
+            "w01049",
+            "w01055",
+            "w01453",
+            "w01500"
+        ],
+        "negative": [
+            "w00224",
+            "w00244",
+            "w00282",
+            "w00382",
+            "w01407",
+            "w01459",
+            "wempty_deepregex"
+        ]
+    },
+    "0080": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00412",
+            "w00413",
+            "w00678",
+            "w00869",
+            "w00874",
+            "w01015",
+            "w01172"
+        ],
+        "negative": [
+            "w00382",
+            "w00811",
+            "w00930",
+            "w01242",
+            "w01361",
+            "w01555",
+            "wempty_deepregex"
+        ]
+    },
+    "0081": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00079",
+            "w00215",
+            "w00319",
+            "w00635",
+            "w00636",
+            "w00828"
+        ],
+        "negative": [
+            "w00069",
+            "w00074",
+            "w00110",
+            "w00162",
+            "w00493",
+            "w01525",
+            "wempty_deepregex"
+        ]
+    },
+    "0082": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00066",
+            "w00073",
+            "w00322",
+            "w00336",
+            "w00341",
+            "w00489",
+            "w00492"
+        ],
+        "negative": [
+            "w00019",
+            "w00038",
+            "w00382",
+            "w00530",
+            "w00779",
+            "w00851",
+            "wempty_deepregex"
+        ]
+    },
+    "0083": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00229",
+            "w00598",
+            "w00658",
+            "w00807",
+            "w01439",
+            "w01497",
+            "w01509"
+        ],
+        "negative": [
+            "w00382",
+            "w00802",
+            "w00813",
+            "w00969",
+            "w01124",
+            "w01533",
+            "wempty_deepregex"
+        ]
+    },
+    "0084": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00513",
+            "w00514",
+            "w00524",
+            "w00581",
+            "w00760",
+            "w00794",
+            "w00797"
+        ],
+        "negative": [
+            "w00172",
+            "w00186",
+            "w00206",
+            "w00207",
+            "w00213",
+            "w00450",
+            "wempty_deepregex"
+        ]
+    },
+    "0085": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00025",
+            "w00043",
+            "w00770",
+            "w00920",
+            "w00958",
+            "w00959",
+            "w00977"
+        ],
+        "negative": [
+            "w00382",
+            "w00387",
+            "w01054",
+            "w01106",
+            "w01137",
+            "w01250",
+            "wempty_deepregex"
+        ]
+    },
+    "0086": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00403",
+            "w00404",
+            "w00414",
+            "w00418",
+            "w00668",
+            "w00681",
+            "w01012"
+        ],
+        "negative": [
+            "w00011",
+            "w00382",
+            "w00399",
+            "w00447",
+            "w00764",
+            "w01106",
+            "wempty_deepregex"
+        ]
+    },
+    "0087": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00221",
+            "w00286",
+            "w00303",
+            "w00366",
+            "w00563",
+            "w00573",
+            "w00596"
+        ],
+        "negative": [
+            "w00788",
+            "w01109",
+            "w01231",
+            "w01234",
+            "w01317",
+            "w01377",
+            "wempty_deepregex"
+        ]
+    },
+    "0088": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00016",
+            "w00038",
+            "w00039",
+            "w00040",
+            "w00045",
+            "w00891",
+            "w00944"
+        ],
+        "negative": [
+            "w00782",
+            "w00800",
+            "w00963",
+            "w00967",
+            "w01253",
+            "wempty_deepregex"
+        ]
+    },
+    "0089": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01062",
+            "w01187",
+            "w01189",
+            "w01195",
+            "w01286",
+            "w01291",
+            "w01425"
+        ],
+        "negative": [
+            "w00953",
+            "w01239",
+            "w01246",
+            "w01414",
+            "w01440",
+            "w01513",
+            "wempty_deepregex"
+        ]
+    },
+    "0090": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01164",
+            "w01261",
+            "w01359",
+            "w01384",
+            "w01502",
+            "w01526",
+            "w01539"
+        ],
+        "negative": [
+            "w00038",
+            "w00229",
+            "w00524",
+            "w00741",
+            "w00875",
+            "w00934",
+            "w01074"
+        ]
+    },
+    "0091": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00143",
+            "w00395",
+            "w00417",
+            "w00425",
+            "w00748",
+            "w01135"
+        ],
+        "negative": [
+            "w00003",
+            "w00004",
+            "w00005",
+            "w00008",
+            "w00019",
+            "w00661",
+            "wempty_deepregex"
+        ]
+    },
+    "0092": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00306",
+            "w00375",
+            "w00488",
+            "w00752",
+            "w01082",
+            "w01083"
+        ],
+        "negative": [
+            "w00020",
+            "w00169",
+            "w00184",
+            "w01193",
+            "w01443",
+            "w01451",
+            "wempty_deepregex"
+        ]
+    },
+    "0093": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00574",
+            "w00928",
+            "w01320",
+            "w01374",
+            "w01504",
+            "w01529",
+            "w01556"
+        ],
+        "negative": [
+            "w00018",
+            "w00317",
+            "w00428",
+            "w00618",
+            "w00859",
+            "w01307",
+            "wempty_deepregex"
+        ]
+    },
+    "0094": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00220",
+            "w00276",
+            "w00287",
+            "w00303",
+            "w00808",
+            "w00931",
+            "w01354"
+        ],
+        "negative": [
+            "w00015",
+            "w00300",
+            "w00593",
+            "w00594",
+            "w01471",
+            "w01489",
+            "wempty_deepregex"
+        ]
+    },
+    "0095": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00089",
+            "w00753",
+            "w00943",
+            "w01156",
+            "w01260",
+            "w01442"
+        ],
+        "negative": [
+            "w00104",
+            "w00232",
+            "w00381",
+            "w00408",
+            "w00532",
+            "w00755",
+            "w01126"
+        ]
+    },
+    "0096": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00073",
+            "w00079",
+            "w00333",
+            "w00338",
+            "w00641",
+            "w00850",
+            "w00998"
+        ],
+        "negative": [
+            "w00006",
+            "w00142",
+            "w00149",
+            "w00215",
+            "w00725",
+            "w01086",
+            "w01116"
+        ]
+    },
+    "0097": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00229",
+            "w00524",
+            "w00741",
+            "w00934",
+            "w01199",
+            "w01399"
+        ],
+        "negative": [
+            "w00010",
+            "w00011",
+            "w00012",
+            "w00109",
+            "w00141",
+            "w00421",
+            "w00662"
+        ]
+    },
+    "0098": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00079",
+            "w00848",
+            "w00938",
+            "w01315",
+            "w01433",
+            "w01528"
+        ],
+        "negative": [
+            "w00018",
+            "w00038",
+            "w00229",
+            "w00524",
+            "w00591",
+            "w00893"
+        ]
+    },
+    "0099": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00750",
+            "w00934",
+            "w00937",
+            "w01074",
+            "w01199",
+            "w01302",
+            "w01454"
+        ],
+        "negative": [
+            "w00038",
+            "w00147",
+            "w00148",
+            "w00269",
+            "w00524",
+            "w00892",
+            "wempty_deepregex"
+        ]
+    },
+    "0100": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00019",
+            "w00065",
+            "w00073",
+            "w00152",
+            "w00335",
+            "w00693"
+        ],
+        "negative": [
+            "w00090",
+            "w00394",
+            "w00970",
+            "w01318",
+            "w01334",
+            "w01362",
+            "wempty_deepregex"
+        ]
+    },
+    "0101": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00218",
+            "w00552",
+            "w00597",
+            "w00927",
+            "w01094",
+            "w01290",
+            "w01395"
+        ],
+        "negative": [
+            "w00373",
+            "w00394",
+            "w00824",
+            "w00960",
+            "w01388",
+            "w01396",
+            "w01431"
+        ]
+    },
+    "0102": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00226",
+            "w00486",
+            "w01145",
+            "w01168",
+            "w01218",
+            "w01299",
+            "w01412"
+        ],
+        "negative": [
+            "w00038",
+            "w00373",
+            "w00394",
+            "w00454",
+            "w00608",
+            "w00768",
+            "wempty_deepregex"
+        ]
+    },
+    "0103": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00019",
+            "w00394",
+            "w00786",
+            "w00999",
+            "w01120",
+            "w01221",
+            "w01457"
+        ],
+        "negative": [
+            "w00003",
+            "w00065",
+            "w00066",
+            "w00361",
+            "w00854",
+            "w01332",
+            "w01383"
+        ]
+    },
+    "0104": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00316",
+            "w00487",
+            "w00553",
+            "w00925",
+            "w01158",
+            "w01347"
+        ],
+        "negative": [
+            "w00030",
+            "w00051",
+            "w00065",
+            "w00090",
+            "w00394",
+            "w01311",
+            "wempty_deepregex"
+        ]
+    },
+    "0105": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00038",
+            "w00215",
+            "w00607",
+            "w01254",
+            "w01435",
+            "w01511"
+        ],
+        "negative": [
+            "w00394",
+            "w00580",
+            "w00698",
+            "w01159",
+            "w01375",
+            "w01456",
+            "wempty_deepregex"
+        ]
+    },
+    "0106": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00215",
+            "w00485",
+            "w01163",
+            "w01235",
+            "w01350",
+            "w01391",
+            "w01516"
+        ],
+        "negative": [
+            "w00003",
+            "w00212",
+            "w00394",
+            "w00983",
+            "w01143",
+            "w01238",
+            "wempty_deepregex"
+        ]
+    },
+    "0107": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00065",
+            "w00655",
+            "w00823",
+            "w00884",
+            "w01092",
+            "w01144"
+        ],
+        "negative": [
+            "w00419",
+            "w00769",
+            "w01319",
+            "w01408",
+            "w01409",
+            "w01505",
+            "wempty_deepregex"
+        ]
+    },
+    "0108": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00020",
+            "w00076",
+            "w00377",
+            "w00629",
+            "w01179",
+            "w01406",
+            "w01446"
+        ],
+        "negative": [
+            "wempty_deepregex"
+        ]
+    },
+    "0109": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00388",
+            "w00682",
+            "w00691",
+            "w00878",
+            "w00890",
+            "w01001",
+            "w01023"
+        ],
+        "negative": [
+            "w00372",
+            "w00796",
+            "w01304",
+            "w01327",
+            "w01372",
+            "w01477",
+            "w01488"
+        ]
+    },
+    "0110": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00135",
+            "w00879",
+            "w00883",
+            "w01343",
+            "w01465",
+            "w01466",
+            "w01531"
+        ],
+        "negative": [
+            "w00374",
+            "w00976",
+            "w01056",
+            "w01287",
+            "w01371",
+            "w01508",
+            "wempty_deepregex"
+        ]
+    },
+    "0111": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00028",
+            "w00046",
+            "w00090",
+            "w00134",
+            "w00347",
+            "w01057",
+            "w01233"
+        ],
+        "negative": [
+            "wempty_deepregex"
+        ]
+    },
+    "0112": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00041",
+            "w00564",
+            "w00570",
+            "w00964",
+            "w01011",
+            "w01210",
+            "w01229"
+        ],
+        "negative": [
+            "wempty_deepregex"
+        ]
+    },
+    "0113": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00415",
+            "w00692",
+            "w00885",
+            "w00886",
+            "w00887",
+            "w01026",
+            "w01274"
+        ],
+        "negative": [
+            "w00394",
+            "w00479",
+            "w00653",
+            "w00705",
+            "w00838",
+            "w00916",
+            "w01084"
+        ]
+    },
+    "0114": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00215",
+            "w00226",
+            "w00516",
+            "w00798",
+            "w00805",
+            "w00954"
+        ],
+        "negative": [
+            "w00021",
+            "w00127",
+            "w00182",
+            "w00456",
+            "w00706",
+            "w00912",
+            "w00915"
+        ]
+    },
+    "0115": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00066",
+            "w00150",
+            "w00163",
+            "w00177",
+            "w00189",
+            "w00193"
+        ],
+        "negative": [
+            "w00003",
+            "w00004",
+            "w00019",
+            "w00111",
+            "w00116",
+            "w00129",
+            "w00250"
+        ]
+    },
+    "0116": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00307",
+            "w00308",
+            "w00519",
+            "w00575",
+            "w00787",
+            "w00978",
+            "w01117"
+        ],
+        "negative": [
+            "w00003",
+            "w00369",
+            "wempty_deepregex"
+        ]
+    },
+    "0117": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00078",
+            "w00087",
+            "w00530",
+            "w00612",
+            "w00833",
+            "w00852",
+            "w00994"
+        ],
+        "negative": [
+            "w00283",
+            "w00579",
+            "w00664",
+            "w00777",
+            "w00801",
+            "w01222",
+            "wempty_deepregex"
+        ]
+    },
+    "0118": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00215",
+            "w00225",
+            "w00227",
+            "w00252",
+            "w00557",
+            "w00558",
+            "w00736"
+        ],
+        "negative": [
+            "w00075",
+            "w00079",
+            "w00176",
+            "w00183",
+            "w00458",
+            "w01186",
+            "w01295"
+        ]
+    },
+    "0119": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00424",
+            "w00535",
+            "w00571",
+            "w00775",
+            "w00888",
+            "w00941"
+        ],
+        "negative": [
+            "wempty_deepregex"
+        ]
+    },
+    "0120": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00215",
+            "w00586",
+            "w00873",
+            "w00911",
+            "w00951",
+            "w00966",
+            "w01503"
+        ],
+        "negative": [
+            "w00535",
+            "w00704",
+            "w00708",
+            "w00902",
+            "w01043",
+            "w01061",
+            "w01118"
+        ]
+    },
+    "0121": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00533",
+            "w00709",
+            "w00719",
+            "w00961",
+            "w01245",
+            "w01355",
+            "w01397"
+        ],
+        "negative": [
+            "w00038",
+            "w00301",
+            "w00416",
+            "w00589",
+            "w00773",
+            "w00804",
+            "wempty_deepregex"
+        ]
+    },
+    "0122": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00743",
+            "w00949",
+            "w01132",
+            "w01216",
+            "w01316",
+            "w01404",
+            "w01424"
+        ],
+        "negative": [
+            "w00283",
+            "w00299",
+            "w00664",
+            "w00770",
+            "w00799",
+            "w01309",
+            "wempty_deepregex"
+        ]
+    },
+    "0123": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00609",
+            "w00828",
+            "w01146",
+            "w01256",
+            "w01330",
+            "w01380",
+            "w01494"
+        ],
+        "negative": [
+            "w00654",
+            "w00835",
+            "w00955",
+            "w01105",
+            "w01171",
+            "w01430",
+            "wempty_deepregex"
+        ]
+    },
+    "0124": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00011",
+            "w00019",
+            "w00022",
+            "w00031",
+            "w00032",
+            "w00033",
+            "w00038"
+        ],
+        "negative": [
+            "w00115",
+            "w00140",
+            "w00150",
+            "w00192",
+            "w00231",
+            "w00559",
+            "wempty_deepregex"
+        ]
+    },
+    "0125": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00020",
+            "w00024",
+            "w00038",
+            "w00041",
+            "w00050",
+            "w00056"
+        ],
+        "negative": [
+            "w00013",
+            "w00065",
+            "w00115",
+            "w00172",
+            "w00229",
+            "w00258",
+            "wempty_deepregex"
+        ]
+    },
+    "0126": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00010",
+            "w00011",
+            "w00019",
+            "w00020",
+            "w00026",
+            "w00038",
+            "w00041"
+        ],
+        "negative": [
+            "w00175",
+            "w00229",
+            "w00295",
+            "w00354",
+            "w00475",
+            "w00585",
+            "wempty_deepregex"
+        ]
+    },
+    "0127": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00174",
+            "w00756",
+            "w00926",
+            "w01045",
+            "w01190",
+            "w01262",
+            "w01323"
+        ],
+        "negative": [
+            "w00020",
+            "w00038",
+            "w00055",
+            "w00809",
+            "w00924",
+            "w01244",
+            "wempty_deepregex"
+        ]
+    },
+    "0128": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00117",
+            "w00685",
+            "w00882",
+            "w01016",
+            "w01448",
+            "w01496",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00011",
+            "w00020",
+            "w00043",
+            "w00689",
+            "w00900",
+            "w01185",
+            "w01344"
+        ]
+    },
+    "0129": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00071",
+            "w00332",
+            "w00622",
+            "w00841",
+            "w00842",
+            "w00992",
+            "w01151"
+        ],
+        "negative": [
+            "w00011",
+            "w00050",
+            "w00379",
+            "w00410",
+            "w00530",
+            "w00657",
+            "w00690"
+        ]
+    },
+    "0130": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00437",
+            "w00499",
+            "w00791",
+            "w00921",
+            "w01059",
+            "w01181",
+            "w01367"
+        ],
+        "negative": [
+            "w00233",
+            "w00496",
+            "w00583",
+            "w00718",
+            "w01068",
+            "w01182",
+            "w01292"
+        ]
+    },
+    "0131": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00005",
+            "w00011",
+            "w00012",
+            "w00034",
+            "w00035",
+            "w00038",
+            "w00042"
+        ],
+        "negative": [
+            "w00090",
+            "w00115",
+            "w00119",
+            "w00230",
+            "w00241",
+            "w00590",
+            "w00871"
+        ]
+    },
+    "0132": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00073",
+            "w00611",
+            "w00774",
+            "w00929",
+            "w01003",
+            "w01325",
+            "w01436"
+        ],
+        "negative": [
+            "w00003",
+            "w00019",
+            "w00666",
+            "w00749",
+            "w00836",
+            "w01154",
+            "w01364"
+        ]
+    },
+    "0133": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00070",
+            "w00647",
+            "w00651",
+            "w00840",
+            "w00845",
+            "w00849",
+            "w00855"
+        ],
+        "negative": [
+            "w00011",
+            "w00422",
+            "w00578",
+            "w00747",
+            "w00772",
+            "w00780",
+            "w00803"
+        ]
+    },
+    "0134": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01387",
+            "w01449",
+            "w01450",
+            "w01478",
+            "w01495",
+            "w01498",
+            "w01512"
+        ],
+        "negative": [
+            "w01007",
+            "w01085",
+            "w01265",
+            "w01386",
+            "w01389",
+            "w01402",
+            "w01469"
+        ]
+    },
+    "0135": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00317",
+            "w00663",
+            "w00727",
+            "w01268",
+            "w01338",
+            "w01426"
+        ],
+        "negative": [
+            "w00019"
+        ]
+    },
+    "0136": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01176",
+            "w01207",
+            "w01241",
+            "w01314",
+            "w01324",
+            "w01351",
+            "w01352"
+        ],
+        "negative": [
+            "w00945",
+            "w01006",
+            "w01037",
+            "w01080",
+            "w01164",
+            "w01200",
+            "w01228"
+        ]
+    },
+    "0137": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00196",
+            "w00463",
+            "w00466",
+            "w00716",
+            "w00913",
+            "w00917",
+            "w00922"
+        ],
+        "negative": [
+            "w00038",
+            "w00254",
+            "w00400",
+            "w00411",
+            "w00473",
+            "w00474",
+            "w00566"
+        ]
+    },
+    "0138": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00096",
+            "w00115",
+            "w00121",
+            "w00271",
+            "w00294",
+            "w01284",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00003",
+            "w00004",
+            "w00010",
+            "w00011",
+            "w00019",
+            "w00029",
+            "w00038"
+        ]
+    },
+    "0139": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00197",
+            "w00200",
+            "w00201",
+            "w00215",
+            "w00223",
+            "w00229",
+            "w00714"
+        ],
+        "negative": [
+            "w00003",
+            "w00019",
+            "w00038",
+            "w00123",
+            "w00292",
+            "w00296",
+            "w00298"
+        ]
+    },
+    "0140": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00162",
+            "w00197",
+            "w00470",
+            "w00476",
+            "w00703",
+            "w00720",
+            "w00898"
+        ],
+        "negative": [
+            "w00003",
+            "w00022",
+            "w00191",
+            "w00215",
+            "w00311",
+            "w00462",
+            "w00467"
+        ]
+    },
+    "0141": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00011",
+            "w00052",
+            "w00256",
+            "w00567",
+            "w00584",
+            "w00588"
+        ],
+        "negative": [
+            "wempty_deepregex"
+        ]
+    },
+    "0142": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00509",
+            "w00669",
+            "w00784",
+            "w00889",
+            "w00936",
+            "w00997",
+            "w01313"
+        ],
+        "negative": [
+            "w00014",
+            "w00038",
+            "w00133",
+            "w00232",
+            "w00508",
+            "w00790",
+            "wempty_deepregex"
+        ]
+    },
+    "0143": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00014",
+            "w00130",
+            "w00232",
+            "w00261",
+            "w00394",
+            "w00619",
+            "w00781"
+        ],
+        "negative": [
+            "w00003",
+            "w00024",
+            "w00038",
+            "w00041",
+            "w00052",
+            "w00150",
+            "wempty_deepregex"
+        ]
+    },
+    "0144": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00215",
+            "w00220",
+            "w00468",
+            "w00469",
+            "w00687",
+            "w01020",
+            "w01095"
+        ],
+        "negative": [
+            "w00043",
+            "w00110",
+            "w00135",
+            "w00477",
+            "w00648",
+            "w00785",
+            "w00880"
+        ]
+    },
+    "0145": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00351",
+            "w00358",
+            "w00360",
+            "w00365",
+            "w00368",
+            "w00370",
+            "w00371"
+        ],
+        "negative": [
+            "w00083",
+            "w00342",
+            "w00344",
+            "w00394",
+            "w00517",
+            "w00623",
+            "w00634"
+        ]
+    },
+    "0146": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00079",
+            "w00159",
+            "w00257",
+            "w00396",
+            "w00650",
+            "w00776",
+            "w00857"
+        ],
+        "negative": [
+            "w00086",
+            "w00128",
+            "w00228",
+            "w00305",
+            "w00398",
+            "w00582",
+            "w00592"
+        ]
+    },
+    "0147": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00478",
+            "w00903",
+            "w00904",
+            "w00919",
+            "w01040",
+            "w01183",
+            "w01285"
+        ],
+        "negative": [
+            "w00172",
+            "w00394",
+            "w00465",
+            "w00568",
+            "w00572",
+            "w00686",
+            "w00717"
+        ]
+    },
+    "0148": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00160",
+            "w00362",
+            "w00923",
+            "w01024",
+            "w01025",
+            "w01217"
+        ],
+        "negative": [
+            "w00003",
+            "w00011",
+            "w00014",
+            "w00065",
+            "w00115",
+            "w00918",
+            "wempty_deepregex"
+        ]
+    },
+    "0149": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00110",
+            "w00129",
+            "w00392",
+            "w00683",
+            "w00688",
+            "w01027",
+            "w01272"
+        ],
+        "negative": [
+            "w00011",
+            "w00065",
+            "w00120",
+            "w00149",
+            "w00215",
+            "w00665",
+            "w01266"
+        ]
+    },
+    "0150": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00065",
+            "w00067",
+            "w00069",
+            "w00074",
+            "w00075",
+            "w00079",
+            "w00839"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00020",
+            "w00038",
+            "w00039",
+            "wempty_deepregex"
+        ]
+    },
+    "0151": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00073",
+            "w00074",
+            "w00075",
+            "w00079",
+            "w00080",
+            "w00337",
+            "w00339"
+        ],
+        "negative": [
+            "w00002",
+            "w00009",
+            "w00011",
+            "w00038",
+            "w00039",
+            "w00069",
+            "wempty_deepregex"
+        ]
+    },
+    "0152": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00066",
+            "w00069",
+            "w00073",
+            "w00492",
+            "w00536",
+            "w00554",
+            "w00821"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00004",
+            "w00011",
+            "w00019",
+            "w00433",
+            "wempty_deepregex"
+        ]
+    },
+    "0153": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00079",
+            "w00119",
+            "w00131",
+            "w00246",
+            "w00624",
+            "w00674",
+            "w01269"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00038",
+            "w00088",
+            "w00124",
+            "w00235",
+            "wempty_deepregex"
+        ]
+    },
+    "0154": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00011",
+            "w00167",
+            "w00218",
+            "w00444",
+            "w00448",
+            "w00527",
+            "w00982"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00038",
+            "w00039",
+            "w00701",
+            "w00937",
+            "wempty_deepregex"
+        ]
+    },
+    "0155": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00012",
+            "w00019",
+            "w00665",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00020",
+            "w00021",
+            "w00038",
+            "w00039",
+            "w00170"
+        ]
+    },
+    "0156": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00215",
+            "w00218",
+            "w00224",
+            "w00229",
+            "w00230",
+            "w00237",
+            "w01213"
+        ],
+        "negative": [
+            "w00002",
+            "w00020",
+            "w00038",
+            "w00161",
+            "w00166",
+            "w00170",
+            "wempty_deepregex"
+        ]
+    },
+    "0157": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00315",
+            "w00384",
+            "w00402",
+            "w00551",
+            "w00948",
+            "w01088",
+            "w01416"
+        ],
+        "negative": [
+            "w00002",
+            "w00038",
+            "w00039",
+            "w00248",
+            "w00249",
+            "w00518",
+            "wempty_deepregex"
+        ]
+    },
+    "0158": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00215",
+            "w00505",
+            "w00525",
+            "w00560",
+            "w01044",
+            "w01097",
+            "w01357"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00230",
+            "w00260",
+            "w00435",
+            "w00659",
+            "wempty_deepregex"
+        ]
+    },
+    "0159": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00020",
+            "w00038",
+            "w00039",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00110",
+            "w00162",
+            "w00215",
+            "w00238",
+            "w00488",
+            "w00490",
+            "w00498"
+        ]
+    },
+    "0160": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00038",
+            "w00039",
+            "w00080",
+            "w00119",
+            "w00230",
+            "w00353",
+            "w00405"
+        ],
+        "negative": [
+            "w00002",
+            "w00115",
+            "w00323",
+            "w00743",
+            "w00747",
+            "w00865",
+            "w00935"
+        ]
+    },
+    "0161": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00168",
+            "w00223",
+            "w00265",
+            "w00546",
+            "w00547",
+            "w00991",
+            "w01212"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00038",
+            "w00039",
+            "w00116",
+            "w00181",
+            "wempty_deepregex"
+        ]
+    },
+    "0162": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00175",
+            "w00185",
+            "w00899",
+            "w01046",
+            "w01058",
+            "w01060",
+            "w01177"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00038",
+            "w00171",
+            "w00439",
+            "wempty_deepregex"
+        ]
+    },
+    "0163": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00011",
+            "w00021",
+            "w00038",
+            "w00041",
+            "w00153",
+            "w00218",
+            "w00328"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00009",
+            "w00065",
+            "w00144",
+            "w00820",
+            "wempty_deepregex"
+        ]
+    },
+    "0164": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00020",
+            "w00021",
+            "w00038",
+            "w00039",
+            "w00180",
+            "w00218",
+            "w00530"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00009",
+            "w00011",
+            "w00115",
+            "w00119",
+            "wempty_deepregex"
+        ]
+    },
+    "0165": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00074",
+            "w00079",
+            "w00320",
+            "w00633",
+            "w00638",
+            "w00830",
+            "w00996"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00012",
+            "w00039",
+            "w00080",
+            "w00115",
+            "wempty_deepregex"
+        ]
+    },
+    "0166": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00906",
+            "w00914",
+            "w01050",
+            "w01175",
+            "w01188",
+            "w01293",
+            "w01294"
+        ],
+        "negative": [
+            "w00002",
+            "w00038",
+            "w00039",
+            "w00170",
+            "w00445",
+            "w00702",
+            "wempty_deepregex"
+        ]
+    },
+    "0167": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00038",
+            "w00079",
+            "w00116",
+            "w00215",
+            "w00327",
+            "w00430"
+        ],
+        "negative": [
+            "w00002",
+            "w00019",
+            "w00090",
+            "w00378",
+            "w00435",
+            "w00656",
+            "wempty_deepregex"
+        ]
+    },
+    "0168": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00110",
+            "w00125",
+            "w00389",
+            "w00390",
+            "w00455",
+            "w00505",
+            "w00822"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00038",
+            "w00394",
+            "w00397",
+            "wempty_deepregex"
+        ]
+    },
+    "0169": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00011",
+            "w00065",
+            "w00115",
+            "w00172",
+            "w00529",
+            "w00670"
+        ],
+        "negative": [
+            "w00002",
+            "w00005",
+            "w00019",
+            "w00020",
+            "w00170",
+            "w00195",
+            "wempty_deepregex"
+        ]
+    },
+    "0170": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00079",
+            "w00119",
+            "w00229",
+            "w00620",
+            "w00680",
+            "w00771",
+            "w00870"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00020",
+            "w00038",
+            "w00167",
+            "wempty_deepregex"
+        ]
+    },
+    "0171": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00020",
+            "w00038",
+            "w00039",
+            "w00041",
+            "w00047",
+            "w00049",
+            "w00053"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00115",
+            "w00230",
+            "w00452",
+            "wempty_deepregex"
+        ]
+    },
+    "0172": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00317",
+            "w00394",
+            "w00506",
+            "w00530",
+            "w00549",
+            "w00943",
+            "w01075"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00020",
+            "w00038",
+            "w00039",
+            "w00115",
+            "wempty_deepregex"
+        ]
+    },
+    "0173": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00073",
+            "w00329",
+            "w00339",
+            "w00625",
+            "w00628",
+            "w00632",
+            "w00843"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00019",
+            "w00038",
+            "w00070",
+            "w00079",
+            "wempty_deepregex"
+        ]
+    },
+    "0174": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01076",
+            "w01201",
+            "w01204",
+            "w01205",
+            "w01206",
+            "w01438",
+            "w01460"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00038",
+            "w00939",
+            "w01400",
+            "wempty_deepregex"
+        ]
+    },
+    "0175": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00110",
+            "w00215",
+            "w00229",
+            "w00230",
+            "w00238",
+            "w00388",
+            "w00405"
+        ],
+        "negative": [
+            "w00002",
+            "w00020",
+            "w00038",
+            "w00061",
+            "w00219",
+            "w00394",
+            "wempty_deepregex"
+        ]
+    },
+    "0176": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00162",
+            "w00179",
+            "w00190",
+            "w00436",
+            "w00442",
+            "w00460",
+            "w01036"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00019",
+            "w00115",
+            "w00172",
+            "w00230",
+            "wempty_deepregex"
+        ]
+    },
+    "0177": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00069",
+            "w00099",
+            "w00114",
+            "w00151",
+            "w00218",
+            "w00240",
+            "w00538"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00019",
+            "w00038",
+            "w00229",
+            "wempty_deepregex"
+        ]
+    },
+    "0178": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00003",
+            "w00011",
+            "w00019",
+            "w00069",
+            "w00073",
+            "w00432",
+            "w00512"
+        ],
+        "negative": [
+            "w00002",
+            "w00020",
+            "w00021",
+            "w00038",
+            "w00039",
+            "w00230",
+            "wempty_deepregex"
+        ]
+    },
+    "0179": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00019",
+            "w00151",
+            "w00154",
+            "w00215",
+            "w00561",
+            "w00562",
+            "w00896"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00038",
+            "w00039",
+            "w00219",
+            "w00230",
+            "wempty_deepregex"
+        ]
+    },
+    "0180": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01146",
+            "w01199",
+            "w01208",
+            "w01255",
+            "w01278",
+            "w01300",
+            "w01302"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00038",
+            "w00984",
+            "w01041",
+            "w01081",
+            "wempty_deepregex"
+        ]
+    },
+    "0181": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00110",
+            "w00119",
+            "w00129",
+            "w00138",
+            "w00142",
+            "w00409",
+            "w00420"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00012",
+            "w00038",
+            "wempty_deepregex"
+        ]
+    },
+    "0182": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00074",
+            "w00343",
+            "w00357",
+            "w00389",
+            "w00493",
+            "w00643",
+            "w00827"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00038",
+            "w00069",
+            "w00079",
+            "wempty_deepregex"
+        ]
+    },
+    "0183": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00110",
+            "w00119",
+            "w00120",
+            "w00215",
+            "w00229",
+            "w00406",
+            "w00677"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00038",
+            "w00039",
+            "w00218",
+            "wempty_deepregex"
+        ]
+    },
+    "0184": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00609",
+            "w00741",
+            "w00762",
+            "w00825",
+            "w00934",
+            "w00950",
+            "w01214"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00065",
+            "w00230",
+            "w00317",
+            "w00530",
+            "wempty_deepregex"
+        ]
+    },
+    "0185": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00119",
+            "w00229",
+            "w00246",
+            "w00247",
+            "w00352",
+            "w00548",
+            "w00844"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00114",
+            "w00218",
+            "w00238",
+            "w00251",
+            "wempty_deepregex"
+        ]
+    },
+    "0186": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00074",
+            "w00079",
+            "w00122",
+            "w00157",
+            "w00434",
+            "w00846",
+            "w00877"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00019",
+            "w00038",
+            "wempty_deepregex"
+        ]
+    },
+    "0187": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00011",
+            "w00019",
+            "w00119",
+            "w00149",
+            "w00394",
+            "w00432",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00003",
+            "w00038",
+            "w00069",
+            "w00079",
+            "w00218",
+            "w00530",
+            "w00609"
+        ]
+    },
+    "0188": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00326",
+            "w00349",
+            "w00356",
+            "w00645",
+            "w00847",
+            "w01257",
+            "w01464"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00038",
+            "w00352",
+            "w00613",
+            "wempty_deepregex"
+        ]
+    },
+    "0189": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00609",
+            "w00741",
+            "w00762",
+            "w00825",
+            "w00950",
+            "w01148",
+            "w01202"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00065",
+            "w00230",
+            "w00317",
+            "w00530",
+            "wempty_deepregex"
+        ]
+    },
+    "0190": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00002",
+            "w00004",
+            "w00009",
+            "w00011",
+            "w00038",
+            "w00039",
+            "wempty_deepregex"
+        ],
+        "negative": [
+            "w00003",
+            "w00019",
+            "w00073",
+            "w00079",
+            "w00080",
+            "w00155",
+            "w00215"
+        ]
+    },
+    "0191": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00609",
+            "w00615",
+            "w00630",
+            "w00694",
+            "w00825",
+            "w00895",
+            "w01029"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00038",
+            "w00065",
+            "w00335",
+            "wempty_deepregex"
+        ]
+    },
+    "0192": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00860",
+            "w00861",
+            "w00934",
+            "w00935",
+            "w00937",
+            "w00950",
+            "w01005"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00038",
+            "w00115",
+            "w00394",
+            "w00665",
+            "wempty_deepregex"
+        ]
+    },
+    "0193": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01032",
+            "w01047",
+            "w01076",
+            "w01077",
+            "w01078",
+            "w01079",
+            "w01080"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00038",
+            "w00229",
+            "w00741",
+            "w00934",
+            "wempty_deepregex"
+        ]
+    },
+    "0194": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00062",
+            "w00080",
+            "w00119",
+            "w00229",
+            "w00731",
+            "w00736",
+            "w00993"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00038",
+            "w00039",
+            "w00224",
+            "wempty_deepregex"
+        ]
+    },
+    "0195": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00937",
+            "w00950",
+            "w01017",
+            "w01089",
+            "w01166",
+            "w01267",
+            "w01360"
+        ],
+        "negative": [
+            "w00002",
+            "w00038",
+            "w00230",
+            "w00394",
+            "w00530",
+            "w00750",
+            "wempty_deepregex"
+        ]
+    },
+    "0196": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01072",
+            "w01073",
+            "w01167",
+            "w01198",
+            "w01308",
+            "w01455",
+            "w01486"
+        ],
+        "negative": [
+            "w00002",
+            "w00038",
+            "w00744",
+            "w00935",
+            "w01203",
+            "w01305",
+            "wempty_deepregex"
+        ]
+    },
+    "0197": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00110",
+            "w00125",
+            "w00162",
+            "w00176",
+            "w00209",
+            "w00215",
+            "w00664"
+        ],
+        "negative": [
+            "w00002",
+            "w00058",
+            "w00059",
+            "w00065",
+            "w00230",
+            "w00238",
+            "wempty_deepregex"
+        ]
+    },
+    "0198": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w00826",
+            "w00985",
+            "w01002",
+            "w01066",
+            "w01147",
+            "w01148",
+            "w01161"
+        ],
+        "negative": [
+            "w00002",
+            "w00003",
+            "w00011",
+            "w00038",
+            "w00065",
+            "w00610",
+            "wempty_deepregex"
+        ]
+    },
+    "0199": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01034",
+            "w01038",
+            "w01048",
+            "w01178",
+            "w01276",
+            "w01277",
+            "w01281"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00020",
+            "w00038",
+            "w00169",
+            "w00441",
+            "wempty_deepregex"
+        ]
+    },
+    "0200": {
+        "theory": "deepregex",
+        "model": "deepregex",
+        "positive": [
+            "w01004",
+            "w01042",
+            "w01074",
+            "w01075",
+            "w01080",
+            "w01081",
+            "w01358"
+        ],
+        "negative": [
+            "w00002",
+            "w00011",
+            "w00038",
+            "w00115",
+            "w00394",
+            "w00667",
+            "wempty_deepregex"
+        ]
+    },
+    "0201": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00240",
+            "w00320",
+            "w00321",
+            "w00395"
+        ],
+        "negative": [
+            "w00239",
+            "w00368",
+            "w00483",
+            "w00559"
+        ]
+    },
+    "0202": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00596",
+            "w00688"
+        ],
+        "negative": [
+            "w00620"
+        ]
+    },
+    "0203": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00644",
+            "w00704"
+        ],
+        "negative": [
+            "w00574",
+            "w00696",
+            "w00712"
+        ]
+    },
+    "0204": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00192",
+            "w00200"
+        ],
+        "negative": [
+            "w00046",
+            "w00102",
+            "w00163",
+            "w00198",
+            "w00199"
+        ]
+    },
+    "0205": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00034",
+            "w00035",
+            "w00036",
+            "w00037",
+            "w00038",
+            "w00039",
+            "w00040",
+            "w00041",
+            "w00042",
+            "w00044",
+            "w00045",
+            "w00046"
+        ],
+        "negative": [
+            "w00007",
+            "w00033",
+            "w00047"
+        ]
+    },
+    "0206": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00295",
+            "w00427",
+            "w00504",
+            "w00648"
+        ],
+        "negative": [
+            "w00113",
+            "w00207",
+            "w00324",
+            "w00355",
+            "w00356",
+            "w00482"
+        ]
+    },
+    "0207": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00707",
+            "w00716"
+        ],
+        "negative": [
+            "w00710",
+            "w00717"
+        ]
+    },
+    "0208": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00007",
+            "w00008",
+            "w00099",
+            "w00102",
+            "w00106",
+            "w00116",
+            "w00118",
+            "w00405"
+        ],
+        "negative": [
+            "w00097",
+            "w00104",
+            "w00105",
+            "w00117"
+        ]
+    },
+    "0209": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00102",
+            "w00279",
+            "w00684",
+            "w00695"
+        ],
+        "negative": [
+            "w00184",
+            "w00691",
+            "w00700"
+        ]
+    },
+    "0210": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00014",
+            "w00138",
+            "w00150",
+            "w00155",
+            "w00197",
+            "w00237",
+            "w00247"
+        ],
+        "negative": [
+            "w00003",
+            "w00077",
+            "w00079"
+        ]
+    },
+    "0211": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00014",
+            "w00222",
+            "w00507",
+            "w00548"
+        ],
+        "negative": [
+            "w00139",
+            "w00310",
+            "wempty_stackoverflow"
+        ]
+    },
+    "0212": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00017",
+            "w00050",
+            "w00293",
+            "w00299",
+            "w00358"
+        ],
+        "negative": [
+            "w00010",
+            "w00022",
+            "w00069",
+            "w00126",
+            "w00216",
+            "w00388"
+        ]
+    },
+    "0213": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00099",
+            "w00186",
+            "w00262",
+            "w00285",
+            "w00302"
+        ],
+        "negative": [
+            "w00006",
+            "w00033",
+            "w00096",
+            "w00339"
+        ]
+    },
+    "0214": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00006",
+            "w00007",
+            "w00008",
+            "w00009",
+            "w00010",
+            "w00011",
+            "w00036",
+            "w00096",
+            "w00099",
+            "w00106",
+            "w00118",
+            "w00122",
+            "w00124",
+            "w00176",
+            "w00177",
+            "w00265",
+            "w00267",
+            "w00334",
+            "w00335",
+            "w00357",
+            "w00406",
+            "w00429",
+            "w00489",
+            "w00490"
+        ],
+        "negative": [
+            "w00024",
+            "w00025",
+            "w00044",
+            "w00049",
+            "w00051",
+            "w00052",
+            "w00054",
+            "w00087",
+            "w00128",
+            "w00185"
+        ]
+    },
+    "0215": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00010",
+            "w00125",
+            "w00419",
+            "w00625",
+            "w00661",
+            "w00683"
+        ],
+        "negative": [
+            "w00256",
+            "w00411",
+            "w00462",
+            "w00672"
+        ]
+    },
+    "0216": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0216_01",
+            "w0216_02",
+            "w0216_03"
+        ],
+        "negative": [
+            "w0216_04",
+            "w0216_05",
+            "w0216_06"
+        ]
+    },
+    "0217": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00606"
+        ],
+        "negative": [
+            "w00542",
+            "w00602",
+            "w00613"
+        ]
+    },
+    "0218": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00407",
+            "w00420",
+            "w00532",
+            "w00534"
+        ],
+        "negative": [
+            "w00353",
+            "w00465",
+            "w00501"
+        ]
+    },
+    "0219": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00569",
+            "w00600",
+            "w00659"
+        ],
+        "negative": [
+            "w00624"
+        ]
+    },
+    "0220": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0220_01",
+            "w0220_02",
+            "w0220_03",
+            "w0220_04"
+        ],
+        "negative": [
+            "w0220_05",
+            "w0220_06",
+            "w0220_07",
+            "w0220_08",
+            "w0220_09"
+        ]
+    },
+    "0221": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00045",
+            "w00098",
+            "w00111",
+            "w00194",
+            "w00202",
+            "w00283"
+        ],
+        "negative": [
+            "w00029",
+            "w00282",
+            "w00291"
+        ]
+    },
+    "0222": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00141",
+            "w00577",
+            "w00580",
+            "w00687"
+        ],
+        "negative": [
+            "w00152",
+            "w00572",
+            "w00578",
+            "w00579"
+        ]
+    },
+    "0223": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0223_01",
+            "w0223_02",
+            "w0223_03",
+            "w0223_04",
+            "w0223_05"
+        ],
+        "negative": [
+            "w0223_06"
+        ]
+    },
+    "0224": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00666"
+        ],
+        "negative": [
+            "w00673"
+        ]
+    },
+    "0225": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00246",
+            "w00531",
+            "w00670",
+            "w00699"
+        ],
+        "negative": [
+            "w00654",
+            "w00690"
+        ]
+    },
+    "0226": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00564",
+            "w00566"
+        ],
+        "negative": [
+            "w00565",
+            "w00567",
+            "w00571"
+        ]
+    },
+    "0227": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00629"
+        ],
+        "negative": [
+            "w00650"
+        ]
+    },
+    "0228": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00007",
+            "w00100",
+            "w00162",
+            "w00211",
+            "w00270",
+            "w00297",
+            "w00347",
+            "w00645"
+        ],
+        "negative": [
+            "w00414",
+            "w00416",
+            "w00461",
+            "w00603"
+        ]
+    },
+    "0229": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00390",
+            "w00555",
+            "w00588"
+        ],
+        "negative": [
+            "w00389",
+            "w00480",
+            "w00520",
+            "w00556",
+            "w00618"
+        ]
+    },
+    "0230": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00605"
+        ],
+        "negative": [
+            "w00467",
+            "w00509",
+            "w00535"
+        ]
+    },
+    "0231": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00097",
+            "w00123",
+            "w00359",
+            "w00436",
+            "w00573"
+        ],
+        "negative": [
+            "w00005",
+            "w00164",
+            "w00202",
+            "w00300",
+            "w00352",
+            "w00433",
+            "w00434",
+            "w00435",
+            "w00466",
+            "w00505"
+        ]
+    },
+    "0232": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00675",
+            "w00682"
+        ],
+        "negative": [
+            "w00709",
+            "w00711"
+        ]
+    },
+    "0233": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00084",
+            "w00142",
+            "w00158"
+        ],
+        "negative": [
+            "w00083",
+            "w00157",
+            "w00245",
+            "w00251"
+        ]
+    },
+    "0234": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00120",
+            "w00263",
+            "w00276"
+        ],
+        "negative": [
+            "w00178"
+        ]
+    },
+    "0235": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00014",
+            "w00061",
+            "w00063",
+            "w00218",
+            "w00220"
+        ],
+        "negative": [
+            "w00013",
+            "w00060",
+            "w00137",
+            "w00232"
+        ]
+    },
+    "0236": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00058",
+            "w00085"
+        ],
+        "negative": [
+            "w00131",
+            "w00159",
+            "w00161",
+            "w00331"
+        ]
+    },
+    "0237": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00006",
+            "w00028",
+            "w00030",
+            "w00031",
+            "w00099",
+            "w00188",
+            "w00626",
+            "w00660",
+            "w00671"
+        ],
+        "negative": [
+            "w00005",
+            "w00027",
+            "w00053",
+            "w00274",
+            "w00647",
+            "w00676"
+        ]
+    },
+    "0238": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00007",
+            "w00106",
+            "w00195"
+        ],
+        "negative": [
+            "w00032",
+            "w00095",
+            "w00109",
+            "w00110"
+        ]
+    },
+    "0239": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00562",
+            "w00570"
+        ],
+        "negative": [
+            "w00252",
+            "w00597",
+            "w00598",
+            "w00641"
+        ]
+    },
+    "0240": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00371",
+            "w00372"
+        ],
+        "negative": [
+            "w00311",
+            "w00373",
+            "w00374"
+        ]
+    },
+    "0241": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0241_01",
+            "w0241_02",
+            "w0241_03"
+        ],
+        "negative": [
+            "w0241_04",
+            "w0241_05"
+        ]
+    },
+    "0242": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0242_01",
+            "w0242_02",
+            "w0242_03",
+            "w0242_04",
+            "w0242_05"
+        ],
+        "negative": [
+            "w0242_06",
+            "w0242_07",
+            "w0242_08"
+        ]
+    },
+    "0243": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00568",
+            "w00607"
+        ],
+        "negative": [
+            "w00563",
+            "w00599",
+            "w00642"
+        ]
+    },
+    "0244": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00007",
+            "w00174",
+            "w00196",
+            "w00366",
+            "w00431",
+            "w00437"
+        ],
+        "negative": [
+            "w00305",
+            "w00306",
+            "w00308",
+            "w00367"
+        ]
+    },
+    "0245": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00094",
+            "w00160",
+            "w00215",
+            "w00253"
+        ],
+        "negative": [
+            "w00260",
+            "w00330",
+            "w00332"
+        ]
+    },
+    "0246": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00046",
+            "w00111",
+            "w00208",
+            "w00288",
+            "w00692"
+        ],
+        "negative": [
+            "w00018",
+            "w00150",
+            "w00204",
+            "w00209",
+            "w00231",
+            "w00421",
+            "w00432"
+        ]
+    },
+    "0247": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00008",
+            "w00290",
+            "w00503"
+        ],
+        "negative": [
+            "w00114",
+            "w00210",
+            "w00428",
+            "w00468"
+        ]
+    },
+    "0248": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00230",
+            "w00255",
+            "w00315",
+            "w00552"
+        ],
+        "negative": [
+            "w00333",
+            "w00586",
+            "w00619"
+        ]
+    },
+    "0249": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00007",
+            "w00107"
+        ],
+        "negative": [
+            "w00089",
+            "w00190",
+            "w00229",
+            "w00273",
+            "w00292",
+            "w00518",
+            "w00529"
+        ]
+    },
+    "0250": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00246",
+            "w00323",
+            "w00394",
+            "w00701"
+        ],
+        "negative": [
+            "w00322",
+            "w00392",
+            "w00393",
+            "w00530"
+        ]
+    },
+    "0251": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00081",
+            "w00156",
+            "w00329",
+            "w00402",
+            "w00452"
+        ],
+        "negative": [
+            "w00003",
+            "w00023",
+            "w00077",
+            "w00080"
+        ]
+    },
+    "0252": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00168",
+            "w00169",
+            "w00170",
+            "w00344",
+            "w00348",
+            "w00417",
+            "w00491"
+        ],
+        "negative": [
+            "w00088",
+            "w00096",
+            "w00103",
+            "w00203",
+            "w00264",
+            "w00284",
+            "w00418",
+            "w00422",
+            "w00449",
+            "w00457",
+            "w00464"
+        ]
+    },
+    "0253": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00663"
+        ],
+        "negative": [
+            "w00664"
+        ]
+    },
+    "0254": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00166",
+            "w00191",
+            "w00254",
+            "w00404",
+            "w00677"
+        ],
+        "negative": [
+            "w00286",
+            "w00307",
+            "w00470"
+        ]
+    },
+    "0255": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0255_01",
+            "w0255_02",
+            "w0255_03"
+        ],
+        "negative": [
+            "w0255_04",
+            "w0255_05",
+            "w0255_06",
+            "w0255_07"
+        ]
+    },
+    "0256": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00289",
+            "w00681",
+            "w00689",
+            "w00715"
+        ],
+        "negative": [
+            "w00561"
+        ]
+    },
+    "0257": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00380",
+            "w00446",
+            "w00705"
+        ],
+        "negative": [
+            "w00072",
+            "w00201",
+            "w00448",
+            "w00708"
+        ]
+    },
+    "0258": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00587",
+            "w00651",
+            "w00652"
+        ],
+        "negative": [
+            "w00438",
+            "w00454",
+            "w00487",
+            "w00549"
+        ]
+    },
+    "0259": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00646",
+            "w00718"
+        ],
+        "negative": [
+            "w00658",
+            "w00719"
+        ]
+    },
+    "0260": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00102",
+            "w00103",
+            "w00409",
+            "w00410"
+        ],
+        "negative": [
+            "w00007",
+            "w00043",
+            "w00101"
+        ]
+    },
+    "0261": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00391",
+            "w00396"
+        ],
+        "negative": [
+            "w00360",
+            "w00362",
+            "w00420"
+        ]
+    },
+    "0262": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00112",
+            "w00275",
+            "w00354",
+            "w00423",
+            "w00497",
+            "w00537",
+            "w00575"
+        ],
+        "negative": [
+            "w00502",
+            "w00538",
+            "w00539"
+        ]
+    },
+    "0263": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00584"
+        ],
+        "negative": [
+            "w00583",
+            "w00616",
+            "w00665"
+        ]
+    },
+    "0264": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00228",
+            "w00632"
+        ],
+        "negative": [
+            "w00486",
+            "w00581"
+        ]
+    },
+    "0265": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00277",
+            "w00285"
+        ],
+        "negative": [
+            "w00296",
+            "w00342",
+            "w00353",
+            "w00500"
+        ]
+    },
+    "0266": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0266_01",
+            "w0266_02"
+        ],
+        "negative": [
+            "w0266_03"
+        ]
+    },
+    "0267": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0267_01",
+            "w0267_02",
+            "w0267_06"
+        ],
+        "negative": [
+            "w0267_03",
+            "w0267_04",
+            "w0267_05"
+        ]
+    },
+    "0268": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00550"
+        ],
+        "negative": [
+            "w00227",
+            "w00512",
+            "w00558",
+            "w00630"
+        ]
+    },
+    "0269": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00006",
+            "w00108",
+            "w00269",
+            "w00341"
+        ],
+        "negative": [
+            "w00034",
+            "w00193",
+            "w00343",
+            "w00399",
+            "w00403"
+        ]
+    },
+    "0270": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00544",
+            "w00546"
+        ],
+        "negative": [
+            "w00506",
+            "w00532",
+            "w00535",
+            "w00543",
+            "w00594"
+        ]
+    },
+    "0271": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00007",
+            "w00270",
+            "w00280",
+            "w00495"
+        ],
+        "negative": [
+            "w00004",
+            "w00086",
+            "w00408"
+        ]
+    },
+    "0272": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00636",
+            "w00668",
+            "w00713"
+        ],
+        "negative": [
+            "w00657",
+            "w00674",
+            "w00714"
+        ]
+    },
+    "0273": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00384",
+            "w00525"
+        ],
+        "negative": [
+            "w00526",
+            "w00527"
+        ]
+    },
+    "0274": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00370"
+        ],
+        "negative": [
+            "w00018",
+            "w00233",
+            "w00369"
+        ]
+    },
+    "0275": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00680",
+            "w00686",
+            "w00697"
+        ],
+        "negative": [
+            "w00059",
+            "w00593",
+            "w00693"
+        ]
+    },
+    "0276": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00535"
+        ],
+        "negative": [
+            "w00501",
+            "w00554",
+            "w00621"
+        ]
+    },
+    "0277": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00230",
+            "w00477"
+        ],
+        "negative": [
+            "w00519",
+            "w00617"
+        ]
+    },
+    "0278": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00170",
+            "w00285",
+            "w00350",
+            "w00351"
+        ],
+        "negative": [
+            "w00274",
+            "w00340",
+            "w00345"
+        ]
+    },
+    "0279": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00011",
+            "w00091",
+            "w00212",
+            "w00271",
+            "w00536"
+        ],
+        "negative": [
+            "w00129",
+            "w00213",
+            "w00338"
+        ]
+    },
+    "0280": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00560",
+            "w00604",
+            "w00635",
+            "w00662"
+        ],
+        "negative": [
+            "w00614",
+            "w00627",
+            "w00655"
+        ]
+    },
+    "0281": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00465",
+            "w00476",
+            "w00479",
+            "w00485"
+        ],
+        "negative": [
+            "w00420",
+            "w00475",
+            "w00478"
+        ]
+    },
+    "0282": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00111",
+            "w00145",
+            "w00272",
+            "w00316",
+            "w00381",
+            "w00443",
+            "w00445",
+            "w00484",
+            "w00656",
+            "w00694",
+            "w00703"
+        ],
+        "negative": [
+            "w00182",
+            "w00524",
+            "w00669"
+        ]
+    },
+    "0283": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00007",
+            "w00092",
+            "w00167",
+            "w00180",
+            "w00258",
+            "w00259",
+            "w00269",
+            "w00363",
+            "w00364",
+            "w00365"
+        ],
+        "negative": [
+            "w00006",
+            "w00090",
+            "w00165",
+            "w00257"
+        ]
+    },
+    "0284": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00007",
+            "w00100",
+            "w00181",
+            "w00271"
+        ],
+        "negative": [
+            "w00002",
+            "w00014",
+            "w00274",
+            "w00338",
+            "wempty_stackoverflow"
+        ]
+    },
+    "0285": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00522",
+            "w00591"
+        ],
+        "negative": [
+            "w00026",
+            "w00521"
+        ]
+    },
+    "0286": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00055",
+            "w00214"
+        ],
+        "negative": [
+            "w00304",
+            "w00397"
+        ]
+    },
+    "0287": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00541",
+            "w00608",
+            "w00610",
+            "w00611",
+            "w00622",
+            "w00623",
+            "w00628",
+            "w00637",
+            "w00638",
+            "w00639",
+            "w00649"
+        ],
+        "negative": [
+            "w00469",
+            "w00492",
+            "w00609",
+            "w00612",
+            "w00640",
+            "w00643",
+            "w00702"
+        ]
+    },
+    "0288": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00108",
+            "w00173",
+            "w00187",
+            "w00203",
+            "w00271",
+            "w00459",
+            "w00601"
+        ],
+        "negative": [
+            "w00189",
+            "w00455",
+            "w00460",
+            "w00494"
+        ]
+    },
+    "0289": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00010",
+            "w00127"
+        ],
+        "negative": [
+            "w00006",
+            "w00093",
+            "w00179"
+        ]
+    },
+    "0290": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00006",
+            "w00193",
+            "w00269",
+            "w00301",
+            "w00361",
+            "w00545"
+        ],
+        "negative": [
+            "w00033",
+            "w00132",
+            "w00175",
+            "w00337",
+            "w00496"
+        ]
+    },
+    "0291": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00346"
+        ],
+        "negative": [
+            "w00281",
+            "w00353"
+        ]
+    },
+    "0292": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00014",
+            "w00015",
+            "w00019",
+            "w00020"
+        ],
+        "negative": [
+            "w00067",
+            "w00379",
+            "w00441"
+        ]
+    },
+    "0293": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00023",
+            "w00075",
+            "w00077",
+            "w00078",
+            "w00080",
+            "w00400"
+        ],
+        "negative": [
+            "w00073",
+            "w00074",
+            "w00076",
+            "w00328"
+        ]
+    },
+    "0294": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0294_01",
+            "w0294_02",
+            "w0294_03"
+        ],
+        "negative": [
+            "w0294_04",
+            "w0294_05",
+            "w0294_06",
+            "w0294_07",
+            "w0294_08"
+        ]
+    },
+    "0295": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00453",
+            "w00471",
+            "w00472"
+        ],
+        "negative": [
+            "w00439",
+            "w00488"
+        ]
+    },
+    "0296": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00514",
+            "w00517",
+            "w00523",
+            "w00528"
+        ],
+        "negative": [
+            "w00513",
+            "w00515",
+            "w00516",
+            "w00551"
+        ]
+    },
+    "0297": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00219",
+            "w00223",
+            "w00224",
+            "w00225"
+        ],
+        "negative": [
+            "w00135",
+            "w00226",
+            "w00547"
+        ]
+    },
+    "0298": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00015",
+            "w00064",
+            "w00065",
+            "w00066"
+        ],
+        "negative": [
+            "w00068",
+            "w00130",
+            "w00133",
+            "w00134"
+        ]
+    },
+    "0299": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00266",
+            "w00268",
+            "w00412",
+            "w00456"
+        ],
+        "negative": [
+            "w00033"
+        ]
+    },
+    "0300": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00015",
+            "w00057",
+            "w00062",
+            "w00510",
+            "w00557",
+            "w00685"
+        ],
+        "negative": [
+            "w00012",
+            "w00463",
+            "w00595"
+        ]
+    },
+    "0301": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00136",
+            "w00140",
+            "w00473"
+        ],
+        "negative": [
+            "w00007",
+            "w00151",
+            "w00219",
+            "w00221",
+            "w00309",
+            "w00508"
+        ]
+    },
+    "0302": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00440",
+            "w00585",
+            "w00679",
+            "w00706"
+        ],
+        "negative": [
+            "w00474",
+            "w00720"
+        ]
+    },
+    "0303": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00008",
+            "w00121",
+            "w00172",
+            "w00303",
+            "w00349",
+            "w00678"
+        ],
+        "negative": [
+            "w00413",
+            "w00430",
+            "w00450"
+        ]
+    },
+    "0304": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00493"
+        ],
+        "negative": [
+            "w00458",
+            "w00533"
+        ]
+    },
+    "0305": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0305_01",
+            "w0305_02",
+            "w0305_03"
+        ],
+        "negative": [
+            "w0305_04",
+            "w0305_05",
+            "w0305_06"
+        ]
+    },
+    "0306": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00325",
+            "w00326",
+            "w00398"
+        ],
+        "negative": [
+            "w00377",
+            "w00553"
+        ]
+    },
+    "0307": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00070",
+            "w00071",
+            "w00143",
+            "w00144",
+            "w00317"
+        ],
+        "negative": [
+            "w00019",
+            "w00147",
+            "w00383"
+        ]
+    },
+    "0308": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00592",
+            "w00698"
+        ],
+        "negative": [
+            "w00415"
+        ]
+    },
+    "0309": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00615"
+        ],
+        "negative": [
+            "w00582"
+        ]
+    },
+    "0310": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00206",
+            "w00424",
+            "w00425"
+        ],
+        "negative": [
+            "w00287",
+            "w00426"
+        ]
+    },
+    "0311": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00447"
+        ],
+        "negative": [
+            "w00589",
+            "w00653"
+        ]
+    },
+    "0312": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00238",
+            "w00318",
+            "w00382",
+            "w00401"
+        ],
+        "negative": [
+            "w00385",
+            "w00444"
+        ]
+    },
+    "0313": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00234",
+            "w00249",
+            "w00250"
+        ],
+        "negative": [
+            "w00082",
+            "w00248"
+        ]
+    },
+    "0314": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00336"
+        ],
+        "negative": [
+            "w00511"
+        ]
+    },
+    "0315": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00540"
+        ],
+        "negative": [
+            "w00631"
+        ]
+    },
+    "0316": {
+        "theory": "stackoverflow_regfix",
+        "model": "stackoverflow_regfix",
+        "positive": [
+            "w0316_01",
+            "w0316_02",
+            "w0316_03"
+        ],
+        "negative": [
+            "w0316_04"
+        ]
+    },
+    "0317": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00590",
+            "w00634"
+        ],
+        "negative": [
+            "w00386",
+            "w00481"
+        ]
+    },
+    "0318": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00319"
+        ],
+        "negative": [
+            "w00312",
+            "w00451"
+        ]
+    },
+    "0319": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00153",
+            "w00378"
+        ],
+        "negative": [
+            "w00111",
+            "w00154"
+        ]
+    },
+    "0320": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00442"
+        ],
+        "negative": [
+            "w00387"
+        ]
+    },
+    "0321": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00313"
+        ],
+        "negative": [
+            "w00634"
+        ]
+    },
+    "0322": {
+        "theory": "stackoverflow",
+        "model": "stackoverflow",
+        "positive": [
+            "w00667"
+        ],
+        "negative": [
+            "w00576"
+        ]
+    }
+}

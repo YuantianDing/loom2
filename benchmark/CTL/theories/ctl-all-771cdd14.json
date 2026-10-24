@@ -1,0 +1,57 @@
+{
+ "source": "theories/ctl-all-771cdd14.sl",
+ "constructors": [
+  [
+   "ap.c",
+   "ap",
+   "c"
+  ],
+  [
+   "ap.m",
+   "ap",
+   "m"
+  ],
+  [
+   "ap.t",
+   "ap",
+   "t"
+  ],
+  [
+   "ap.dead",
+   "ap",
+   "dead"
+  ],
+  [
+   "ctl.top",
+   "top"
+  ],
+  [
+   "ctl.not",
+   "not"
+  ],
+  [
+   "ctl.and",
+   "and"
+  ],
+  [
+   "ctl.or",
+   "or"
+  ],
+  [
+   "ctl.AX",
+   "AX"
+  ],
+  [
+   "ctl.AF",
+   "AF"
+  ],
+  [
+   "ctl.AG",
+   "AG"
+  ],
+  [
+   "ctl.AU",
+   "AU"
+  ]
+ ]
+}

@@ -1,0 +1,42 @@
+{
+ "source": "theories/ctl-all-75ce8b78.sl",
+ "constructors": [
+  [
+   "ap.p0",
+   "ap",
+   "p0"
+  ],
+  [
+   "ctl.top",
+   "top"
+  ],
+  [
+   "ctl.not",
+   "not"
+  ],
+  [
+   "ctl.and",
+   "and"
+  ],
+  [
+   "ctl.or",
+   "or"
+  ],
+  [
+   "ctl.AX",
+   "AX"
+  ],
+  [
+   "ctl.AF",
+   "AF"
+  ],
+  [
+   "ctl.AG",
+   "AG"
+  ],
+  [
+   "ctl.AU",
+   "AU"
+  ]
+ ]
+}

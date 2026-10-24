@@ -1,0 +1,57 @@
+{
+ "source": "theories/ltl-lasso-4.sl",
+ "constructors": [
+  [
+   "ltl.p0",
+   "prop",
+   "p0"
+  ],
+  [
+   "ltl.p1",
+   "prop",
+   "p1"
+  ],
+  [
+   "ltl.p2",
+   "prop",
+   "p2"
+  ],
+  [
+   "ltl.p3",
+   "prop",
+   "p3"
+  ],
+  [
+   "ltl.not",
+   "not"
+  ],
+  [
+   "ltl.X",
+   "X"
+  ],
+  [
+   "ltl.G",
+   "G"
+  ],
+  [
+   "ltl.F",
+   "F"
+  ],
+  [
+   "ltl.and",
+   "and"
+  ],
+  [
+   "ltl.or",
+   "or"
+  ],
+  [
+   "ltl.=>",
+   "=>"
+  ],
+  [
+   "ltl.U",
+   "U"
+  ]
+ ]
+}

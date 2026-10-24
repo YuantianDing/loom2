@@ -1,0 +1,49 @@
+{
+ "source": "theories/ctl-until-fea6804f.sl",
+ "constructors": [
+  [
+   "ap.c",
+   "ap",
+   "c"
+  ],
+  [
+   "ap.m",
+   "ap",
+   "m"
+  ],
+  [
+   "ap.t",
+   "ap",
+   "t"
+  ],
+  [
+   "ap.dead",
+   "ap",
+   "dead"
+  ],
+  [
+   "ctl.top",
+   "top"
+  ],
+  [
+   "ctl.not",
+   "not"
+  ],
+  [
+   "ctl.or",
+   "or"
+  ],
+  [
+   "ctl.EX",
+   "EX"
+  ],
+  [
+   "ctl.EG",
+   "EG"
+  ],
+  [
+   "ctl.EU",
+   "EU"
+  ]
+ ]
+}
