@@ -10,6 +10,7 @@
 //!   %arena = memref.alloc(<arena words>) : memref<?xi64>
 //!   %solution = zeroed_memref(<ceil(max_size * token_bits / 64)>)
 //!   %found = 0
+//!   %cursor = memref<1xi64>            // row counter shared by the filters
 //!   %seen_<nonterminal> = mlir_loom_hashset_i64_create_handle(<table slots>)
 //!
 //!   <for size = 1 .. max_expression_size> {
@@ -21,7 +22,7 @@
 //!       // Generated for every rule and positive composition of size - 1.
 //!       scf.if %found == 0 {
 //!         %pool = func.call @hash_filter_<nonterminal>_<constructor>_rule<rule>(
-//!             %arena, <offset/capacity/start>, <child pools>,
+//!             %arena, <offset/capacity/start>, %cursor, <child pools>,
 //!             %seen_<nonterminal>, %solution, %found)
 //!       }
 //!       advance_arena_cursor(rows(%pool) * %row_words)
@@ -336,6 +337,7 @@ fn emit_synthesize_body<'c>(
         emitter.store(body, zero_i64, solution, &[word]);
     });
     let found = alloc(emitter, block, "memref<1xi8>", None);
+    let filter_cursor = alloc(emitter, block, "memref<1xi64>", None);
     let zero_i8 = emitter.i8(block, 0);
     emitter.store(block, zero_i8, found, &[zero]);
     let capacity = emitter.i64(block, slots as u64);
@@ -400,7 +402,7 @@ fn emit_synthesize_body<'c>(
             for (filter, production, split) in &calls {
                 let state = emitter.load(block, found, &[zero], "i8");
                 let searching = emitter.cmpi(block, "eq", state, zero_i8);
-                let mut operands = vec![arena, cursor, output_capacity, row_words, start];
+                let mut operands = vec![arena, cursor, output_capacity, row_words, start, filter_cursor];
                 for (child, &child_size) in production.children.iter().zip(split) {
                     operands.push(pools[&(child.as_str(), child_size)]);
                 }

@@ -20,6 +20,8 @@ pub(crate) fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(native::build_synthesizer, module)?)?;
     #[cfg(feature = "llvm")]
     module.add_class::<native::JitFunction>()?;
+    // Whether `build_synthesizer(..., device="cuda")` is available.
+    module.add("CUDA_BACKEND", cfg!(feature = "cuda"))?;
     Ok(())
 }
 
@@ -35,7 +37,7 @@ mod native {
     use crate::grammar::{Grammar, Nonterminal, Production};
     use crate::lowering::exec::SynthesisOptions;
     use crate::lowering::jit;
-    use crate::lowering::llvm::BackendOptions;
+    use crate::lowering::llvm::{BackendOptions, CudaOptions, Device};
     use crate::lowering::pipeline;
     use crate::problem::SynthFun;
 
@@ -49,7 +51,8 @@ mod native {
     #[pyfunction]
     #[pyo3(signature = (
         name, functions, grammar, constraint, artifact_dir, executable, *,
-        max_size, max_pool_bytes, initial_hash_capacity, optimization_level, openmp
+        max_size, max_pool_bytes, initial_hash_capacity, optimization_level, openmp,
+        device = "cpu", cuda_chip = None, cuda_block_size = 256
     ))]
     #[allow(clippy::too_many_arguments)]
     pub fn build_synthesizer(
@@ -64,7 +67,21 @@ mod native {
         initial_hash_capacity: usize,
         optimization_level: u8,
         openmp: bool,
+        device: &str,
+        cuda_chip: Option<String>,
+        cuda_block_size: usize,
     ) -> PyResult<Vec<PathBuf>> {
+        let device = match device {
+            "cpu" => Device::Cpu,
+            "cuda" => {
+                let defaults = CudaOptions::default();
+                Device::Cuda(CudaOptions {
+                    chip: cuda_chip.unwrap_or(defaults.chip),
+                    block_size: cuda_block_size,
+                })
+            }
+            other => return Err(PyValueError::new_err(format!("unknown device {other:?}; expected \"cpu\" or \"cuda\""))),
+        };
         let start = grammar
             .first()
             .map(|(symbol, _, _)| symbol.clone())
@@ -93,6 +110,7 @@ mod native {
         let backend = BackendOptions {
             optimization_level,
             openmp,
+            device,
             ..BackendOptions::default()
         };
         pipeline::build_synthesizer(&problem, options, &backend, &artifact_dir, &executable)

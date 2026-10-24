@@ -1,5 +1,6 @@
 //! Compile the synthesis module through upstream MLIR and LLVM, then link it
-//! with the CPU runtime under `cpp/cpu`.
+//! with the CPU runtime under `cpp/cpu` (or, for [`Device::Cuda`], the CUDA
+//! runtime under `cpp/cuda`).
 //!
 //! ```text
 //! frontend MLIR --(inline, canonicalize, cse, scf-to-openmp)--> CPU MLIR
@@ -8,6 +9,23 @@
 //! LLVM IR       --(LLVM new pass manager + target machine)---> object
 //! object + result printer + cpp/cpu runtime ------------------> executable
 //! ```
+//!
+//! The CUDA device keeps the frontend module unchanged and only swaps the
+//! lowering:
+//!
+//! ```text
+//! frontend MLIR --(inline, tile scf.parallel by the block size,
+//!                  gpu-map-parallel-loops, convert-parallel-loops-to-gpu,
+//!                  gpu-kernel-outlining)---------------------> GPU MLIR
+//! GPU MLIR      --(nvvm-attach-target, gpu.module(convert-gpu-to-nvvm),
+//!                  host *-to-llvm, gpu-to-llvm,
+//!                  gpu-module-to-binary{format=isa})---------> LLVM-dialect MLIR + PTX
+//! object + result printer + cpp/cuda runtime (cuco) ---------> executable
+//! ```
+//!
+//! `memref.alloc` lowers to `_mlir_memref_to_llvm_alloc`, which the CUDA
+//! runtime serves from managed memory, so the host `synthesize` loop and the
+//! kernels share pools and flags without copies.
 //!
 //! Every stage is a separate public function so benchmark drivers can retain
 //! each intermediate artifact. No out-of-tree MLIR dialect or pass is used.
@@ -27,15 +45,49 @@ use melior::Context;
 
 const CPU_CPP_RUNTIME: &str = env!("LOOM2_CPU_CPP_RUNTIME");
 const CPU_C_RUNTIME: &str = env!("LOOM2_CPU_C_RUNTIME");
+#[cfg(feature = "cuda")]
+const CUDA_RUNTIME: [&str; 2] = [env!("LOOM2_CUDA_RUNTIME"), env!("LOOM2_CUDA_FATBIN")];
+#[cfg(feature = "cuda")]
+const CUDA_LIBRARY_DIRECTORY: &str = env!("LOOM2_CUDA_LIBRARY_DIR");
 const OPENMP_LIBRARY_DIRECTORY: Option<&str> = option_env!("LOOM2_OPENMP_LIBRARY_DIR");
+
+/// Where the production filters run.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub enum Device {
+    /// Host threads (OpenMP or serial loops).
+    #[default]
+    Cpu,
+    /// One CUDA kernel per filter call.
+    Cuda(CudaOptions),
+}
+
+/// CUDA code generation policy.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CudaOptions {
+    /// NVVM target chip, such as `sm_75`.
+    pub chip: String,
+    /// Threads per block; every filter iteration is one thread.
+    pub block_size: usize,
+}
+
+impl Default for CudaOptions {
+    fn default() -> Self {
+        Self {
+            chip: format!("sm_{}", option_env!("LOOM2_CUDA_ARCH").unwrap_or("75")),
+            block_size: 256,
+        }
+    }
+}
 
 /// Native-code generation and linking policy.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BackendOptions {
     /// LLVM optimization level in the inclusive range `0..=3`.
     pub optimization_level: u8,
-    /// Lower `scf.parallel` through OpenMP and link `libomp`.
+    /// Lower `scf.parallel` through OpenMP and link `libomp` (CPU only).
     pub openmp: bool,
+    /// Target of the production filters.
+    pub device: Device,
     /// C++ linker. `None` uses `CXX`, falling back to `c++`.
     pub linker: Option<PathBuf>,
     /// Extra arguments appended immediately before `-o <executable>`.
@@ -47,6 +99,7 @@ impl Default for BackendOptions {
         Self {
             optimization_level: 3,
             openmp: true,
+            device: Device::Cpu,
             linker: None,
             linker_arguments: Vec::new(),
         }
@@ -93,6 +146,22 @@ fn check_options(options: &BackendOptions) -> Result<(), BackendError> {
             options.optimization_level
         )));
     }
+    if let Device::Cuda(cuda) = &options.device {
+        if !cfg!(feature = "cuda") {
+            return Err(BackendError::InvalidOptions(
+                "the CUDA device needs loom2 built with the `cuda` feature".into(),
+            ));
+        }
+        if cuda.block_size == 0 || cuda.block_size > 1024 {
+            return Err(BackendError::InvalidOptions(format!(
+                "invalid CUDA block size {}; expected 1 through 1024",
+                cuda.block_size
+            )));
+        }
+        if !cuda.chip.starts_with("sm_") || !cuda.chip[3..].chars().all(|c| c.is_ascii_alphanumeric()) {
+            return Err(BackendError::InvalidOptions(format!("invalid CUDA chip {:?}; expected sm_<arch>", cuda.chip)));
+        }
+    }
     Ok(())
 }
 
@@ -125,8 +194,67 @@ pub fn lower_to_cpu_mlir(context: &Context, module: &mut Module, options: &Backe
     run_pipeline(context, module, &format!("builtin.module({})", passes.join(",")))
 }
 
-/// Convert CPU MLIR to the LLVM dialect.
+/// Inline packed constructors and turn every `scf.parallel` filter loop into
+/// a `gpu.launch_func` of an outlined kernel: the loop is tiled by the block
+/// size, the tile loop maps to blocks and the intra-tile loop to threads.
+///
+/// The inliner already folds single-iteration loops (nullary productions), so
+/// those filters stay host code and use the runtime's host-side insert.
+pub fn lower_to_gpu_mlir(context: &Context, module: &mut Module, options: &BackendOptions) -> Result<(), BackendError> {
+    check_options(options)?;
+    let Device::Cuda(cuda) = &options.device else {
+        return Err(BackendError::InvalidOptions("lower_to_gpu_mlir needs the CUDA device".into()));
+    };
+    let mut passes = vec!["inline".to_string(), "symbol-dce".into()];
+    if options.optimization_level > 0 {
+        passes.extend(["canonicalize".into(), "cse".into()]);
+    }
+    passes.push(format!(
+        "func.func(scf-parallel-loop-tiling{{parallel-loop-tile-sizes={} no-min-max-bounds=true}},\
+         gpu-map-parallel-loops,convert-parallel-loops-to-gpu,gpu-launch-sink-index-computations)",
+        cuda.block_size
+    ));
+    passes.push("gpu-kernel-outlining".into());
+    if options.optimization_level > 0 {
+        passes.extend(["canonicalize".into(), "cse".into()]);
+    }
+    run_pipeline(context, module, &format!("builtin.module({})", passes.join(",")))
+}
+
+/// Lower MLIR from [`lower_to_cpu_mlir`] or [`lower_to_gpu_mlir`] to the
+/// target-specific MLIR of `options.device`.
+pub fn lower_to_target_mlir(context: &Context, module: &mut Module, options: &BackendOptions) -> Result<(), BackendError> {
+    match options.device {
+        Device::Cpu => lower_to_cpu_mlir(context, module, options),
+        Device::Cuda(_) => lower_to_gpu_mlir(context, module, options),
+    }
+}
+
+/// Convert CPU or GPU MLIR to the LLVM dialect. For CUDA, every kernel
+/// module becomes a `gpu.binary` holding PTX.
 pub fn lower_to_llvm_mlir(context: &Context, module: &mut Module, options: &BackendOptions) -> Result<(), BackendError> {
+    if let Device::Cuda(cuda) = &options.device {
+        check_options(options)?;
+        let passes = [
+            "convert-vector-to-scf".to_string(),
+            "expand-strided-metadata".into(),
+            "lower-affine".into(),
+            format!("nvvm-attach-target{{chip={} O={}}}", cuda.chip, options.optimization_level),
+            "gpu.module(convert-scf-to-cf,convert-vector-to-llvm,convert-gpu-to-nvvm,reconcile-unrealized-casts)".into(),
+            "convert-vector-to-llvm".into(),
+            "finalize-memref-to-llvm{use-generic-functions=true}".into(),
+            "convert-scf-to-cf".into(),
+            "convert-math-to-llvm".into(),
+            "convert-arith-to-llvm".into(),
+            "convert-index-to-llvm".into(),
+            "convert-func-to-llvm".into(),
+            "convert-cf-to-llvm".into(),
+            "gpu-to-llvm".into(),
+            "reconcile-unrealized-casts".into(),
+            "gpu-module-to-binary{format=isa}".into(),
+        ];
+        return run_pipeline(context, module, &format!("builtin.module({})", passes.join(",")));
+    }
     // `convert-scf-to-openmp` wraps each parallel body in `memref.alloca_scope`.
     // Lower memrefs (and with them the scope, via stack save/restore) while
     // that region is still a single block, i.e. before `convert-scf-to-cf`.
@@ -322,7 +450,8 @@ impl Drop for LlvmModule {
     }
 }
 
-/// Link `object` and optional extra objects with the `cpp/cpu` runtime.
+/// Link `object` and optional extra objects with the `cpp/cpu` runtime, or
+/// for [`Device::Cuda`] with `main.c` and the `cpp/cuda` runtime.
 ///
 /// Extra objects precede the runtime archives, so a schema-aware result
 /// printer overrides the generic numeric printer in `main.c`.
@@ -342,13 +471,26 @@ pub fn link_cpu_object(
         .or_else(|| env::var_os("CXX").map(PathBuf::from))
         .unwrap_or_else(|| PathBuf::from("c++"));
     let mut command = Command::new(linker);
-    command
-        .arg(object.as_ref())
-        .args(extra_objects)
-        .arg(CPU_C_RUNTIME)
-        .arg(CPU_CPP_RUNTIME)
-        .arg("-pthread");
-    if options.openmp {
+    command.arg(object.as_ref()).args(extra_objects).arg(CPU_C_RUNTIME);
+    match options.device {
+        Device::Cpu => {
+            command.arg(CPU_CPP_RUNTIME);
+        }
+        #[cfg(feature = "cuda")]
+        Device::Cuda(_) => {
+            // Link libcudart statically. The toolkit stub satisfies `-lcuda`
+            // at link time; `libcuda.so.1` is the driver's at run time.
+            command
+                .args(CUDA_RUNTIME)
+                .arg(format!("-L{CUDA_LIBRARY_DIRECTORY}"))
+                .arg(format!("-L{CUDA_LIBRARY_DIRECTORY}/stubs"))
+                .args(["-lcudart_static", "-lcuda", "-ldl", "-lrt"]);
+        }
+        #[cfg(not(feature = "cuda"))]
+        Device::Cuda(_) => check_options(options)?,
+    }
+    command.arg("-pthread");
+    if options.openmp && options.device == Device::Cpu {
         if let Some(directory) = OPENMP_LIBRARY_DIRECTORY {
             command.arg(format!("-L{directory}"));
             command.arg(format!("-Wl,-rpath,{directory}"));

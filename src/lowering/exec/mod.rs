@@ -374,11 +374,12 @@ pub fn arguments<'c, 'b>(block: &'b Block<'c>) -> Vec<Value<'c, 'b>> {
         .collect()
 }
 
-/// Make a constructor name safe for an MLIR symbol: `re.++` -> `re._2b__2b_`.
+/// Make a constructor name safe for an MLIR symbol that is also a valid PTX
+/// identifier (kernels are named after filters): `re.++` -> `re_2e__2b__2b_`.
 pub fn symbol_name(name: &str) -> String {
     name.chars()
         .map(|character| {
-            if character.is_ascii_alphanumeric() || matches!(character, '_' | '.') {
+            if character.is_ascii_alphanumeric() || character == '_' {
                 character.to_string()
             } else {
                 format!("_{:x}_", character as u32)

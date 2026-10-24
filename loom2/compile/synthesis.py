@@ -6,9 +6,9 @@ The whole pipeline after tracing is native Rust:
 2. permutes and reductions are fused into ``gather``/``gather2`` nodes;
 3. each graph is lowered to a small vector loop program;
 4. Melior builds the synthesis module from upstream MLIR dialects only;
-5. upstream MLIR passes and LLVM produce CPU MLIR, LLVM-dialect MLIR,
-   LLVM IR, and a native object; and
-6. the object is linked with the ``cpp/cpu`` runtime.
+5. upstream MLIR passes and LLVM produce CPU (or, with ``device="cuda"``,
+   GPU) MLIR, LLVM-dialect MLIR, LLVM IR, and a native object; and
+6. the object is linked with the ``cpp/cpu`` (or ``cpp/cuda``) runtime.
 
 Every stage is written to ``artifact_dir``.
 """
@@ -106,6 +106,9 @@ def synth_fun(
     initial_hash_capacity: int = 4096,
     optimization_level: int = 1,
     openmp: bool = True,
+    device: str = "cpu",
+    cuda_chip: Optional[str] = None,
+    cuda_block_size: int = 256,
 ) -> SynthesisProgram:
     """Trace a ``Vec`` grammar and generate a native synthesis executable.
 
@@ -115,6 +118,11 @@ def synth_fun(
     given, and of ``language`` otherwise; ``language`` must be the start
     symbol's language. Constraints map labels in ``language`` to their
     required Boolean value.
+
+    ``device="cuda"`` runs every production filter as a CUDA kernel
+    (``cuda_block_size`` threads per block, compiled for ``cuda_chip``, such
+    as ``"sm_75"``; default: the GPU found when loom2 was built). It needs
+    loom2 built with the ``cuda`` feature.
     """
     languages = dict(languages or {})
     if not grammar:
@@ -166,6 +174,9 @@ def synth_fun(
             initial_hash_capacity=initial_hash_capacity,
             optimization_level=optimization_level,
             openmp=openmp,
+            device=device,
+            cuda_chip=cuda_chip,
+            cuda_block_size=cuda_block_size,
         )
     except RuntimeError as error:
         raise SynthesisError(str(error)) from error
@@ -180,6 +191,9 @@ def synth_fun(
             "initial_hash_capacity": initial_hash_capacity,
             "optimization_level": optimization_level,
             "openmp": openmp,
+            "device": device,
+            "cuda_chip": cuda_chip,
+            "cuda_block_size": cuda_block_size,
         },
         "artifacts": [
             {"file": path.name, "bytes": path.stat().st_size, "sha256": _digest(path)}

@@ -1,6 +1,8 @@
 import importlib
 import json
 import re
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -33,8 +35,15 @@ try:
     from loom2 import _loom2
 
     NATIVE_BACKEND = hasattr(_loom2, "build_synthesizer")
+    CUDA_BACKEND = getattr(_loom2, "CUDA_BACKEND", False)
 except ImportError:
-    NATIVE_BACKEND = False
+    NATIVE_BACKEND = CUDA_BACKEND = False
+
+
+def has_gpu():
+    if not shutil.which("nvidia-smi"):
+        return False
+    return subprocess.run(("nvidia-smi", "-L"), capture_output=True).returncode == 0
 
 
 def parse_expression(text):
@@ -139,6 +148,33 @@ class BenchmarkTests(unittest.TestCase):
             cpu = (Path(directory) / "05-cpu.mlir").read_text()
             self.assertIn("omp.parallel", cpu)
             self.assertNotIn("xi1>", cpu)
+
+            output = program.run()
+            self.assertTrue(output.startswith("r = "), output)
+            solution = evaluate(parse_expression(output[len("r = "):]), theory)
+            for label, expected in constraints.items():
+                self.assertIs(solution[label], expected, label)
+            self.assertEqual(len(re.findall(r"[^\s(),]+", output[len("r = "):])), 4)
+
+    @unittest.skipUnless(CUDA_BACKEND and has_gpu(), "needs the cuda feature and an NVIDIA GPU")
+    def test_cuda_pipeline_synthesizes_a_verified_regex(self):
+        theory, constraints = benchmark_theory("Reg+", "0030")
+        with tempfile.TemporaryDirectory() as directory:
+            program = loom2.synth_fun(
+                Path(directory) / "synth",
+                language=theory.language,
+                grammar=theory.grammar,
+                constraints=constraints,
+                artifact_dir=directory,
+                max_size=4,
+                device="cuda",
+            )
+            names = [stage.name for stage in program.stages]
+            self.assertEqual(names[3:5], ["04-frontend.mlir", "05-gpu.mlir"])
+            gpu = (Path(directory) / "05-gpu.mlir").read_text()
+            self.assertIn("gpu.launch_func", gpu)
+            self.assertIn("gpu.module", gpu)
+            self.assertIn("gpu.binary", (Path(directory) / "06-llvm.mlir").read_text())
 
             output = program.run()
             self.assertTrue(output.startswith("r = "), output)

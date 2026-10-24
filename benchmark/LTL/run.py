@@ -9,10 +9,11 @@ Stages are written to ``<id>-ir/`` next to this file:
     03-loops.ir         vector loop programs
     04-frontend.mlir    Melior-built synthesis module (upstream dialects only)
     05-cpu.mlir         inlined, canonicalized, OpenMP CPU MLIR
+                        (05-gpu.mlir with outlined kernels for --device cuda)
     06-llvm.mlir        LLVM-dialect MLIR
     07-llvm.ll          LLVM IR
     08-program.o        optimized native object
-    09-<name>           executable linked with cpp/cpu
+    09-<name>           executable linked with cpp/cpu (or cpp/cuda)
     10-result.txt       synthesized expression (with --run)
 """
 
@@ -61,6 +62,8 @@ def compile_benchmark(args: argparse.Namespace) -> Path:
         initial_hash_capacity=args.initial_hash_capacity,
         optimization_level=args.opt_level,
         openmp=args.openmp,
+        device=args.device,
+        cuda_block_size=args.cuda_block_size,
     )
     for stage in program.stages:
         print(f"wrote {stage}")
@@ -80,6 +83,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--initial-hash-capacity", type=int, default=4096)
     parser.add_argument("-O", "--opt-level", type=int, choices=range(4), default=1)
     parser.add_argument("--openmp", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
+    parser.add_argument("--cuda-block-size", type=int, default=256)
     parser.add_argument("--run", action="store_true")
     return parser
 

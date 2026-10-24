@@ -13,6 +13,7 @@ crate-type = ["cdylib", "rlib"]
 default = []
 mlir = ["dep:melior", "dep:mlir-sys"]
 llvm = ["mlir"]
+cuda = ["llvm"]
 
 [dependencies]
 pyo3 = "0.27.0"

@@ -27,6 +27,7 @@
 //!   func.func private @hash_filter_<nonterminal>_<constructor>_rule<rule>(
 //!       %arena: memref<?xi64>, %output_offset: index,
 //!       %output_capacity: index, %output_row_words: index, %start: index,
+//!       %cursor: memref<1xi64>,
 //!       %child0: memref<?x?xi64, strided<[?, 1], offset: ?>>, ...,
 //!       %child0_expression_bits: index, ...,
 //!       %seen: i64, %solution: memref<?xi64>, %found: memref<1xi8>

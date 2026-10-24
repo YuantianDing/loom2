@@ -60,6 +60,25 @@ Linking the generated executable uses `CC`/`CXX` (default `cc`/`c++`) and
 `-lomp`; set `LOOM2_OPENMP_LIBRARY_DIR` at build time if `libomp` is outside
 the default search path.
 
+### CUDA
+
+The `cuda` feature adds a GPU backend: every production filter becomes a
+CUDA kernel, and the per-nonterminal hash sets are
+[cuco](https://github.com/NVIDIA/cuCollections) `static_set`s. It needs the
+CUDA toolkit (`CUDA_HOME`, default `/usr/local/cuda`) and the cuco submodule;
+`LOOM2_CUDA_ARCH` (such as `75`) picks the GPU architecture, defaulting to
+the one `nvidia-smi` reports.
+
+```console
+git submodule update --init
+cargo test --features cuda
+maturin develop --release --features cuda,pyo3/extension-module
+python benchmark/Reg+/run.py 0030 --device cuda --run
+```
+
+`loom2.synth_fun(..., device="cuda")` selects it from Python; see
+[cpp/cuda](cpp/cuda/README.md) for the runtime.
+
 Regenerate the native type stub after changing a PyO3 API:
 
 ```console

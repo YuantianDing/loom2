@@ -7,12 +7,13 @@
 //! | `03-loops.ir`            | vector loop programs                           |
 //! | `04-frontend.mlir`       | Melior-built synthesis module                  |
 //! | `05-cpu.mlir`            | inlined, canonicalized, OpenMP CPU MLIR        |
+//! | `05-gpu.mlir`            | instead, for CUDA: outlined `gpu.launch_func` kernels |
 //! | `06-llvm.mlir`           | LLVM-dialect MLIR                              |
 //! | `07-llvm.ll`             | translated LLVM IR                             |
 //! | `08-program.o`           | optimized native object                        |
 //! | `result-printer.c`       | token-to-constructor result printer            |
 //! | `result-schema.tsv`      | numeric constructor-token decoder              |
-//! | executable               | object linked with `cpp/cpu`                   |
+//! | executable               | object linked with `cpp/cpu` (or `cpp/cuda`)   |
 
 use std::fmt::Write as _;
 use std::fs;
@@ -22,8 +23,8 @@ use std::path::{Path, PathBuf};
 use super::exec::synthesis::{plan_synthesis, result_printer_source};
 use super::exec::{lower_synthesis, new_context, Emitter, SynthesisOptions};
 use super::llvm::{
-    compile_c_object, link_cpu_object, lower_to_cpu_mlir, lower_to_llvm_mlir, BackendError, BackendOptions,
-    LlvmModule,
+    compile_c_object, link_cpu_object, lower_to_llvm_mlir, lower_to_target_mlir, BackendError, BackendOptions,
+    Device, LlvmModule,
 };
 use crate::problem::SynthFun;
 
@@ -72,8 +73,9 @@ pub fn build_synthesizer(
     let mut module = lower_synthesis(&emitter, problem, &plan, options).map_err(compile)?;
     write(artifacts, "04-frontend.mlir", module.as_operation().to_string(), &mut written)?;
 
-    lower_to_cpu_mlir(&context, &mut module, backend)?;
-    write(artifacts, "05-cpu.mlir", module.as_operation().to_string(), &mut written)?;
+    lower_to_target_mlir(&context, &mut module, backend)?;
+    let target = if backend.device == Device::Cpu { "05-cpu.mlir" } else { "05-gpu.mlir" };
+    write(artifacts, target, module.as_operation().to_string(), &mut written)?;
     lower_to_llvm_mlir(&context, &mut module, backend)?;
     write(artifacts, "06-llvm.mlir", module.as_operation().to_string(), &mut written)?;
 
@@ -176,9 +178,14 @@ mod tests {
     }
 
     fn synthesize(max_pool_bytes: usize) -> String {
+        synthesize_on(max_pool_bytes, BackendOptions::default())
+    }
+
+    fn synthesize_on(max_pool_bytes: usize, backend: BackendOptions) -> String {
         let problem = three_bit_problem();
+        let device = if backend.device == Device::Cpu { "cpu" } else { "cuda" };
         let directory = std::env::temp_dir().join(format!(
-            "loom2-pipeline-{}-{max_pool_bytes}",
+            "loom2-pipeline-{}-{device}-{max_pool_bytes}",
             std::process::id()
         ));
         let executable = directory.join("synth");
@@ -187,10 +194,11 @@ mod tests {
             max_pool_bytes,
             initial_hash_capacity: 64,
         };
-        let stages = build_synthesizer(&problem, options, &BackendOptions::default(), &directory, &executable)
+        let stages = build_synthesizer(&problem, options, &backend, &directory, &executable)
             .unwrap_or_else(|error| panic!("{error}"));
         assert_eq!(stages.last(), Some(&executable));
         let output = Command::new(&executable).output().unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
         let text = String::from_utf8(output.stdout).unwrap();
         let _ = fs::remove_dir_all(&directory);
         text
@@ -208,6 +216,28 @@ mod tests {
         // size-1 rows (c1, c2) and no size-3 row, so or(c1, c2) is found
         // without being stored.
         let text = synthesize(544);
+        assert!(["r = or(c1, c2)\n", "r = or(c2, c1)\n"].contains(&text.as_str()), "{text}");
+    }
+
+    #[cfg(feature = "cuda")]
+    fn cuda() -> BackendOptions {
+        BackendOptions {
+            device: Device::Cuda(crate::lowering::llvm::CudaOptions::default()),
+            ..BackendOptions::default()
+        }
+    }
+
+    #[cfg(feature = "cuda")]
+    #[test]
+    fn builds_and_runs_a_three_bit_synthesizer_on_cuda() {
+        let text = synthesize_on(1 << 20, cuda());
+        assert!(["r = or(c1, c2)\n", "r = or(c2, c1)\n"].contains(&text.as_str()), "{text}");
+    }
+
+    #[cfg(feature = "cuda")]
+    #[test]
+    fn a_full_pool_still_checks_candidates_on_cuda() {
+        let text = synthesize_on(544, cuda());
         assert!(["r = or(c1, c2)\n", "r = or(c2, c1)\n"].contains(&text.as_str()), "{text}");
     }
 }

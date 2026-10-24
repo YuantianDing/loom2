@@ -19,6 +19,10 @@ Python Vec callbacks           loom2/lang, loom2/tracing
     -> executable              + cpp/cpu runtime
 ```
 
+With `device="cuda"`, `05-gpu.mlir` replaces `05-cpu.mlir`, the LLVM-dialect
+module carries one PTX `gpu.binary` per kernel, and the executable links the
+`cpp/cuda` runtime (see [CUDA backend](#cuda-backend)).
+
 `loom2.synth_fun` drives the whole pipeline through one native call,
 `build_synthesizer`, and every stage is written to the artifact directory.
 Only upstream MLIR dialects (`func`, `arith`, `scf`, `memref`, `vector`, and
@@ -55,6 +59,7 @@ src/
     ├── jit.rs             in-process LLVM JIT of one TensorFn (`llvm`)
     └── pipeline.rs        end-to-end build with every stage (`llvm`)
 cpp/cpu/                   hash set, memref copy, and printer runtime
+cpp/cuda/                  cuco hash set, managed allocation, mgpu* runtime
 benchmark/<family>/        benchmark.json, models/, theories/, regex.py, run.py
 ```
 
@@ -154,6 +159,40 @@ block. LLVM IR comes from `mlirTranslateModuleToLLVMIR`; the object is
 optimized and emitted through the LLVM C API, then linked with `cpp/cpu` and
 `libomp`.
 
+## CUDA backend
+
+`BackendOptions::device = Device::Cuda { chip, block_size }` reuses the
+frontend module unchanged and only swaps the lowering, again with upstream
+passes alone:
+
+```text
+inline, canonicalize, cse
+func.func(scf-parallel-loop-tiling{block_size}, gpu-map-parallel-loops,
+          convert-parallel-loops-to-gpu, gpu-launch-sink-index-computations)
+gpu-kernel-outlining                                          05-gpu.mlir
+nvvm-attach-target{chip}, gpu.module(convert-gpu-to-nvvm), host *-to-llvm,
+finalize-memref-to-llvm{use-generic-functions}, gpu-to-llvm,
+gpu-module-to-binary{format=isa}                              06-llvm.mlir
+```
+
+Each filter's `scf.parallel` becomes one kernel: the tile loop maps to
+blocks and the intra-tile loop to threads, so one thread evaluates one child
+combination. Everything the body touches is visible to the device: the
+filter's row cursor is a `memref<1xi64>` argument shared by all filter calls
+(not a stack slot), and `memref.alloc` lowers to
+`_mlir_memref_to_llvm_alloc`, which `cpp/cuda` serves from managed memory, so
+the arena, `%solution`, `%found`, and the cursor need no copies. The kernel
+calls `mlir_loom_hashset_i64_insert_one` as an external device function;
+`mgpuModuleLoadJIT` links each kernel's PTX with an embedded relocatable
+fatbin of the cuco insert when the executable starts. The inliner folds
+single-iteration loops, so nullary filters stay host code and use the
+runtime's host-side insert, a one-thread kernel. Kernel launches are
+synchronous, so the host reads the cursor and `%found` between filters as on
+the CPU.
+
+Symbols are named with `symbol_name`, which keeps only `[A-Za-z0-9_]`, since
+kernel names must be valid PTX identifiers.
+
 ## JIT
 
 `loom2.compile` functions called on `VecValue` arguments run through
@@ -177,5 +216,6 @@ tests also JIT each function at -O0 and -O3.
 | (default) | IR, tracing builder, fusion, loop programs | Rust only       |
 | `mlir`    | Melior emission                              | LLVM/MLIR 23    |
 | `llvm`    | codegen, linking, `build_synthesizer`, `JitFunction`, `cpp/cpu` runtime | LLVM/MLIR 23, C/C++ compiler, libomp |
+| `cuda`    | `Device::Cuda`, `cpp/cuda` runtime          | `llvm` + CUDA toolkit (nvcc), cuco submodule, an NVIDIA GPU to run |
 
 `mlir-sys` finds LLVM through `MLIR_SYS_230_PREFIX/bin/llvm-config`.

@@ -7,13 +7,14 @@
 //! func.func private @hash_filter_<nonterminal>_<constructor>_rule<rule>(
 //!     %arena: memref<?xi64>, %output_offset: index,
 //!     %output_capacity: index, %output_row_words: index, %start: index,
+//!     %cursor: memref<1xi64>,          // shared by every filter call
 //!     %child0: memref<?x?xi64, strided<[?, 1], offset: ?>>, ...,
 //!     %child0_expression_bits: index, ...,
 //!     %seen: i64,                      // cpp/cpu/i64hashset handle
 //!     %solution: memref<?xi64>, %found: memref<1xi8>
 //! ) -> memref<?x?xi64, strided<[?, 1], offset: ?>> {
 //!   %output = memref.reinterpret_cast %arena at %output_offset
-//!   %cursor = %start
+//!   %cursor[0] = %start
 //!   scf.parallel (%linear) = (0) to (product(rows(%child_i))) step (1) {
 //!     scf.if atomic_load(%found) == 0 {
 //!       %children = mixed_radix_select(%linear, %child0, ...)
@@ -164,7 +165,7 @@ pub fn lower_hash_filter<'c>(emitter: &Emitter<'c>, config: &HashFilterConfig) -
     let i64_type = emitter.ty("i64");
     let pool = emitter.ty(POOL);
     let arity = config.child_value_words.len();
-    let mut signature = vec![emitter.ty("memref<?xi64>"), index, index, index, index];
+    let mut signature = vec![emitter.ty("memref<?xi64>"), index, index, index, index, emitter.ty("memref<1xi64>")];
     signature.extend(std::iter::repeat_n(pool, arity));
     signature.extend(std::iter::repeat_n(index, arity));
     signature.extend([i64_type, emitter.ty("memref<?xi64>"), emitter.ty("memref<1xi8>")]);
@@ -182,22 +183,21 @@ pub fn lower_hash_filter<'c>(emitter: &Emitter<'c>, config: &HashFilterConfig) -
         &attributes,
         Some(&|entry: &Block<'c>| {
             let arguments = arguments(entry);
-            let (arena, offset, capacity, row_words, start) =
-                (arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
-            let children = &arguments[5..5 + arity];
-            let child_bits = &arguments[5 + arity..5 + 2 * arity];
+            let (arena, offset, capacity, row_words, start, cursor) =
+                (arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]);
+            let children = &arguments[6..6 + arity];
+            let child_bits = &arguments[6 + arity..6 + 2 * arity];
             let (seen, solution, found) = (
-                arguments[5 + 2 * arity],
                 arguments[6 + 2 * arity],
                 arguments[7 + 2 * arity],
+                arguments[8 + 2 * arity],
             );
 
             let zero = emitter.index(entry, 0);
             let one = emitter.index(entry, 1);
             let output = emitter.pool_view(entry, arena, offset, capacity, row_words);
-            let cursor = emitter.value(entry, "memref.alloca", &[], emitter.ty("memref<1xi64>"), &[
-                ("operandSegmentSizes", emitter.attr("array<i32: 0, 0>")),
-            ]);
+            // The cursor is caller-provided memory rather than a stack slot,
+            // so the loop body may run on a device.
             let start_i64 = emitter.index_cast(entry, start, "i64");
             emitter.store(entry, start_i64, cursor, &[zero]);
             let mut counts = Vec::with_capacity(arity);
