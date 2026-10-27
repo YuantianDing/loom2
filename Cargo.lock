@@ -328,6 +328,7 @@ checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 [[package]]
 name = "high-mlir"
 version = "0.1.0"
+source = "git+https://github.com/YuantianDing/high-mlir.git#d68f96b804c95360298f4f8f9953729bdf959bf6"
 dependencies = [
  "dyn-clone",
  "dyn-eq",

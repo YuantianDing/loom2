@@ -218,7 +218,8 @@ def verify(directory: Path, bench_id: str, output: str) -> dict[str, Any]:
 
 def compute_loom2_openmp(directory: Path, bench_id: str, method_configs: Mapping[str, Any]) -> dict[str, Any]:
     """Compile with ``benchmark/run.py`` in a subprocess, run the
-    synthesizer, and verify its answer."""
+    synthesizer, and verify its answer (with or without OpenMP, as
+    ``method_configs["omp"]`` says)."""
     environment = dict(os.environ)
     threads = method_configs.get("omp_threads")
     if threads is not None:
@@ -269,7 +270,7 @@ def compute_loom2_openmp(directory: Path, bench_id: str, method_configs: Mapping
 def compute(bench_set: str, bench_id: str, method: str, method_configs: Mapping[str, Any]) -> dict[str, Any]:
     """Map an uncached method-specific instance description to its result."""
     directory = family_directory(bench_set, bench_id)
-    if method == "loom2.openmp":
+    if method in ("loom2.openmp", "loom2.cpu.1"):
         return {
             **compute_loom2_openmp(directory, bench_id, method_configs),
             "value_bits": value_bits(bench_set, bench_id),
