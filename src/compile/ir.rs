@@ -237,12 +237,13 @@ impl TensorFn {
         self.to_string()
     }
 
-    /// The fused graph and its vector loop program, as used for MLIR emission.
-    fn loop_program(&self) -> PyResult<String> {
+    /// The fused graph's packed constructor and its step tables, as MLIR.
+    #[cfg(feature = "mlir")]
+    fn mlir(&self) -> PyResult<String> {
         let fused = crate::compile::pass::fuse(self);
-        crate::lowering::loops::lower_loop_program(&fused)
-            .map(|program| program.to_string())
-            .map_err(|error| PyValueError::new_err(error.to_string()))
+        let mut lowered = Ok(());
+        let module = high_mlir::builtin::module(|| lowered = crate::lowering::exec::lower_tensor_fn(&fused).map(drop));
+        lowered.map(|()| module.to_string()).map_err(|error| PyValueError::new_err(error.to_string()))
     }
 
     fn __repr__(&self) -> String {

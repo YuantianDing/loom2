@@ -156,7 +156,7 @@ def verify(directory: Path, bench_id: str, output: str) -> dict[str, Any]:
 
 
 def compute_loom2_openmp(directory: Path, bench_id: str, method_configs: Mapping[str, Any]) -> dict[str, Any]:
-    """Compile with ``benchmark/<family>/run.py`` in a subprocess, run the
+    """Compile with ``benchmark/run.py`` in a subprocess, run the
     synthesizer, and verify its answer."""
     environment = dict(os.environ)
     threads = method_configs.get("omp_threads")
@@ -166,8 +166,8 @@ def compute_loom2_openmp(directory: Path, bench_id: str, method_configs: Mapping
     timeout = float(method_configs["timeout_seconds"])
     with tempfile.TemporaryDirectory(prefix="loom2-experiment-") as temporary:
         command = [
-            sys.executable, str(directory / "run.py"), bench_id,
-            "--output", temporary,
+            sys.executable, str(config.BENCHMARK / "run.py"), directory.name, bench_id,
+            "--stages", temporary,
             "--max-size", str(method_configs["max_size"]),
             "--max-pool-bytes", str(pool),
             "--initial-hash-capacity", str(method_configs["initial_hash_capacity"]),
@@ -175,7 +175,7 @@ def compute_loom2_openmp(directory: Path, bench_id: str, method_configs: Mapping
             "--openmp" if method_configs.get("omp", True) else "--no-openmp",
         ]
         compiled = run(command, timeout, environment)
-        executables = sorted(Path(temporary).glob("09-*"))
+        executables = sorted(Path(temporary).glob("08-*"))
         executed = (
             run([str(executables[0])], timeout, environment)
             if compiled["status"] == "done" and executables

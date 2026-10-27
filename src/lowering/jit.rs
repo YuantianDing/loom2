@@ -1,35 +1,40 @@
 //! In-process LLVM JIT for one traced `TensorFn`.
 //!
 //! ```text
-//! TensorFn --fuse--> --loops--> define_fun_<name>(vector<Nxi64>...) -> vector<Mxi64>
-//!   + func.func @loom_jit_entry(%out: !llvm.ptr, %in: !llvm.ptr)
-//!       load every input vector from the packed word buffer `%in`,
-//!       call define_fun_<name>, store the result to `%out`
+//! TensorFn --fuse--> define_fun_<name>(vector<Nxi64>...) -> vector<Mxi64>
+//!   + func.func @loom_jit_entry(%out: memref<Mxi64>, %in: memref<<total>xi64>)
+//!       vector.load every input from the packed word buffer `%in`,
+//!       call define_fun_<name>, vector.store the result to `%out`
 //!   --(CPU MLIR, LLVM dialect)--> MLIR ExecutionEngine (LLVM ORC)
 //! ```
 //!
 //! Inputs are concatenated `u64` words (bit `d` of an argument is word
 //! `d / 64`, bit `d % 64`); the result uses the same packing. The constructor
 //! is the same code the synthesizer runs, so the JIT matches it bit for bit.
+//! Each memref argument is passed as the expanded descriptor
+//! `(allocated, aligned, offset, size, stride)`.
 
 use std::ffi::c_void;
 
-use melior::ir::block::BlockLike;
-use melior::ir::operation::OperationLike;
-use melior::ir::{Module, Value};
+use high_mlir::func::Signature;
+use high_mlir::arith::{self, Constant};
+use high_mlir::{builtin, memref, vector, Root, Ty, Tuple, Val, I64};
 use mlir_sys::{mlirExecutionEngineCreate, mlirExecutionEngineDestroy, mlirExecutionEngineLookup, MlirExecutionEngine};
 
-use super::exec::functions::{define_fun_symbol, lower_tensor_fn, packed_type};
-use super::exec::{arguments, new_context, Emitter};
+use super::exec::functions::{define_fun_symbol, lower_tensor_fn, packed_type, result_bits};
+use super::exec::sliced::{
+    is_sliced, lower_sliced_tensor_fn, lower_transpose, slice_rows, sliced_signature, sliced_type, unslice_rows,
+};
+use super::exec::{index, new_context, to_melior};
 use super::llvm::{lower_to_cpu_mlir, lower_to_llvm_mlir, BackendError, BackendOptions};
-use super::loops::{lower_loop_program, word_count};
+use super::word_count;
 use crate::compile::pass::fuse;
 use crate::compile::TensorFn;
 
 /// Public symbol of the generated entry point.
 pub const ENTRY: &str = "loom_jit_entry";
 
-type Entry = unsafe extern "C" fn(*mut u64, *const u64);
+type Entry = unsafe extern "C" fn(*mut u64, *mut u64, i64, i64, i64, *const u64, *const u64, i64, i64, i64);
 
 /// A JIT-compiled constructor.
 pub struct JitFunction {
@@ -41,63 +46,111 @@ pub struct JitFunction {
     pub result_bits: usize,
     /// The LLVM-dialect module handed to the engine.
     pub llvm_mlir: String,
+    /// Candidates per call: 1, or 64 for a bit-sliced constructor.
+    pub lanes: usize,
 }
 
 impl JitFunction {
     /// Lower, JIT-compile, and look up the entry point of `function`.
     pub fn compile(function: &TensorFn, optimization_level: u8) -> Result<Self, BackendError> {
         let lowering = |error: super::LoweringError| BackendError::Compile(error.to_string());
-        let program = lower_loop_program(&fuse(function)).map_err(lowering)?;
+        let fused = fuse(function);
+        let input_bits: Vec<usize> = fused.inputs.iter().map(|(_, tensor_type)| tensor_type.width()).collect();
+        let result_bits = result_bits(&fused).map_err(lowering)?;
+        let callee = Signature::new(
+            define_fun_symbol(&fused.name),
+            input_bits.iter().map(|&bits| packed_type(bits)),
+            [packed_type(result_bits)],
+        );
+        let input_words: usize = input_bits.iter().map(|&bits| word_count(bits)).sum();
+        let buffer = |words: usize| Ty::memref([Some(words as u64)], I64);
+        let mut lowered = Ok(());
+        let module = builtin::module(|| {
+            lowered = lower_tensor_fn(&fused).map(drop);
+            Signature::new(ENTRY, [buffer(word_count(result_bits)), buffer(input_words)], []).define(|buffers| {
+                let (output, input) = (&buffers[0], &buffers[1]);
+                let mut offset = 0usize;
+                let mut values: Vec<Val> = Vec::new();
+                for &bits in &input_bits {
+                    values.push(vector::load(input, (index(offset),), packed_type(bits), ()).into());
+                    offset += word_count(bits);
+                }
+                let result = callee.call(values)[0].clone();
+                vector::store(result, output, (index(0),), ());
+                Tuple(Vec::new())
+            });
+        });
+        lowered.map_err(lowering)?;
+        Self::load(&function.name, &module, optimization_level, input_bits, result_bits, 1)
+    }
+
+    /// JIT-compile the bit-sliced constructor of `function` (see
+    /// [`sliced`](super::exec::sliced)) behind the same transposes as the
+    /// synthesizer. [`call`](Self::call) then takes 64 candidates: lane `k`'s
+    /// inputs at word `k * input_words()`, its result at `k * result_words()`.
+    pub fn compile_sliced(function: &TensorFn, optimization_level: u8) -> Result<Self, BackendError> {
+        let lowering = |error: super::LoweringError| BackendError::Compile(error.to_string());
+        let fused = fuse(function);
+        if !is_sliced(&fused) {
+            return Err(BackendError::InvalidOptions(format!("{} is not bit-sliced", function.name)));
+        }
+        let input_bits: Vec<usize> = fused.inputs.iter().map(|(_, tensor_type)| tensor_type.width()).collect();
+        let result_bits = result_bits(&fused).map_err(lowering)?;
+        let input_words: usize = input_bits.iter().map(|&bits| word_count(bits)).sum();
+        let result_words = word_count(result_bits);
+        let callee = sliced_signature(&fused.name, &input_bits, result_bits);
+        let buffer = |words: usize| Ty::memref([Some((64 * words) as u64)], I64);
+        let mut lowered = Ok(());
+        let module = builtin::module(|| {
+            lower_transpose();
+            lowered = lower_sliced_tensor_fn(&fused).map(drop);
+            Signature::new(ENTRY, [buffer(result_words), buffer(input_words)], []).define(|buffers| {
+                let (output, input) = (&buffers[0], &buffers[1]);
+                let scratch: Val = memref::alloca(Ty::memref([Some(64)], I64), (), ()).into();
+                let mut offset = 0usize;
+                let mut arguments = Vec::new();
+                for &bits in &input_bits {
+                    let words = word_count(bits);
+                    let sliced: Val = memref::alloca(sliced_type(bits), (), ()).into();
+                    let row = |lane: &Val, word: &Val| {
+                        let at = arith::addi(arith::muli(lane, index(input_words), ()), arith::addi(word, index(offset), ()), ());
+                        memref::load(input, (&at,), ())
+                    };
+                    slice_rows(&row, &index(64), words, bits, &Constant::int(0, I64).into(), &scratch, &sliced);
+                    arguments.push(sliced);
+                    offset += words;
+                }
+                let out: Val = memref::alloca(sliced_type(result_bits), (), ()).into();
+                arguments.push(out.clone());
+                callee.call(arguments);
+                unslice_rows(&out, result_bits, result_words, &scratch, &|lane, word, value| {
+                    let at = arith::addi(arith::muli(lane, index(result_words), ()), word, ());
+                    memref::store(value, output, (&at,), ());
+                });
+                Tuple(Vec::new())
+            });
+        });
+        lowered.map_err(lowering)?;
+        Self::load(&function.name, &module, optimization_level, input_bits, result_bits, 64)
+    }
+
+    /// Lower `module` to the LLVM dialect and load it into an execution engine.
+    fn load(
+        name: &str,
+        module: &Root,
+        optimization_level: u8,
+        input_bits: Vec<usize>,
+        result_bits: usize,
+        lanes: usize,
+    ) -> Result<Self, BackendError> {
+        let lowering = |error: super::LoweringError| BackendError::Compile(error.to_string());
         let backend = BackendOptions {
             optimization_level,
             openmp: false,
             ..BackendOptions::default()
         };
-
         let context = new_context();
-        let emitter = Emitter::new(&context);
-        let mut module = Module::new(emitter.location);
-        let body = module.body();
-        let (constructor, globals) = lower_tensor_fn(&emitter, &program);
-        for global in globals {
-            body.append_operation(global);
-        }
-        body.append_operation(constructor);
-
-        let pointer = emitter.ty("!llvm.ptr");
-        let argument_types: Vec<_> = program.input_bits.iter().map(|&bits| packed_type(&emitter, bits)).collect();
-        let result_type = packed_type(&emitter, program.result_bits);
-        let alignment = emitter.attr("8 : i64");
-        let element = emitter.attr("i64");
-        let entry_body = |block: &melior::ir::Block<'_>| {
-            let parameters = arguments(block);
-            let (output, input) = (parameters[0], parameters[1]);
-            let mut offset = 0usize;
-            let mut values: Vec<Value> = Vec::new();
-            for (&bits, &ty) in program.input_bits.iter().zip(&argument_types) {
-                let indices = emitter.attr(&format!("array<i32: {offset}>"));
-                let address = emitter.value(
-                    block,
-                    "llvm.getelementptr",
-                    &[input],
-                    pointer,
-                    &[("rawConstantIndices", indices), ("elem_type", element)],
-                );
-                values.push(emitter.value(block, "llvm.load", &[address], ty, &[("alignment", alignment)]));
-                offset += word_count(bits);
-            }
-            let result = emitter.call(block, &define_fun_symbol(&program.name), &values, &[result_type]);
-            emitter.op(block, "llvm.store", &[result[0], output], &[], &[("alignment", alignment)], Vec::new());
-            emitter.op(block, "func.return", &[], &[], &[], Vec::new());
-        };
-        body.append_operation(emitter.function(ENTRY, &[pointer, pointer], &[], false, &[], Some(&entry_body)));
-        if !module.as_operation().verify() {
-            return Err(BackendError::Compile(format!(
-                "invalid JIT module for {}:\n{}",
-                function.name,
-                module.as_operation()
-            )));
-        }
+        let mut module = to_melior(&context, module, "JIT lowering").map_err(lowering)?;
 
         lower_to_cpu_mlir(&context, &mut module, &backend)?;
         lower_to_llvm_mlir(&context, &mut module, &backend)?;
@@ -107,7 +160,7 @@ impl JitFunction {
         // its own LLVM context, so the MLIR context may be dropped afterwards.
         let engine = unsafe { mlirExecutionEngineCreate(module.to_raw(), i32::from(optimization_level), 0, std::ptr::null(), false, false) };
         if engine.ptr.is_null() {
-            return Err(BackendError::Compile(format!("LLVM JIT rejected {}", function.name)));
+            return Err(BackendError::Compile(format!("LLVM JIT rejected {name}")));
         }
         let symbol = melior::StringRef::new(ENTRY);
         let address = unsafe { mlirExecutionEngineLookup(engine, symbol.to_raw()) };
@@ -115,14 +168,15 @@ impl JitFunction {
             unsafe { mlirExecutionEngineDestroy(engine) };
             return Err(BackendError::Compile(format!("JIT entry {ENTRY} not found")));
         }
-        // SAFETY: `loom_jit_entry` was emitted with exactly this signature.
+        // SAFETY: `loom_jit_entry` takes two expanded rank-1 memref descriptors.
         let entry = unsafe { std::mem::transmute::<*mut c_void, Entry>(address) };
         Ok(Self {
             engine,
             entry,
-            input_bits: program.input_bits.clone(),
-            result_bits: program.result_bits,
+            input_bits,
+            result_bits,
             llvm_mlir,
+            lanes,
         })
     }
 
@@ -136,18 +190,23 @@ impl JitFunction {
         word_count(self.result_bits)
     }
 
-    /// Run on packed inputs; bits beyond each input's width must be zero.
+    /// Run on packed inputs (of every lane); bits beyond each input's width
+    /// must be zero.
     pub fn call(&self, inputs: &[u64]) -> Result<Vec<u64>, BackendError> {
-        if inputs.len() != self.input_words() {
+        if inputs.len() != self.lanes * self.input_words() {
             return Err(BackendError::InvalidOptions(format!(
                 "expected {} input words, got {}",
-                self.input_words(),
+                self.lanes * self.input_words(),
                 inputs.len()
             )));
         }
-        let mut output = vec![0u64; self.result_words()];
+        let mut output = vec![0u64; self.lanes * self.result_words()];
+        let (output_words, input_words) = (output.len() as i64, inputs.len() as i64);
+        let (output_data, input_data) = (output.as_mut_ptr(), inputs.as_ptr());
         // SAFETY: both buffers have exactly the word counts the entry reads/writes.
-        unsafe { (self.entry)(output.as_mut_ptr(), inputs.as_ptr()) };
+        unsafe {
+            (self.entry)(output_data, output_data, 0, output_words, 1, input_data, input_data, 0, input_words, 1)
+        };
         Ok(output)
     }
 }

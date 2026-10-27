@@ -133,19 +133,19 @@ class BenchmarkTests(unittest.TestCase):
                 max_size=4,
             )
             names = [stage.name for stage in program.stages]
-            self.assertEqual(names[:8], [
-                "01-tensor-fn.ir", "02-fused.ir", "03-loops.ir", "04-frontend.mlir",
-                "05-cpu.mlir", "06-llvm.mlir", "07-llvm.ll", "08-program.o",
+            self.assertEqual(names[:7], [
+                "01-tensor-fn.ir", "02-fused.ir", "03-frontend.mlir",
+                "04-cpu.mlir", "05-llvm.mlir", "06-llvm.ll", "07-program.o",
             ])
             fused = (Path(directory) / "02-fused.ir").read_text()
             self.assertIn("gather2.or.and", fused)
-            frontend = (Path(directory) / "04-frontend.mlir").read_text()
+            frontend = (Path(directory) / "03-frontend.mlir").read_text()
             # Operation names start a statement or follow `=`; `loom.*` names
             # that appear are attributes only.
             operations = re.findall(r"(?:^\s*|= )([a-z_]+)\.[a-z_]+", frontend, re.MULTILINE)
             self.assertLessEqual(set(operations), {"func", "arith", "scf", "memref", "vector"})
             self.assertIn("vector.transfer_read", frontend)
-            cpu = (Path(directory) / "05-cpu.mlir").read_text()
+            cpu = (Path(directory) / "04-cpu.mlir").read_text()
             self.assertIn("omp.parallel", cpu)
             self.assertNotIn("xi1>", cpu)
 
@@ -170,11 +170,11 @@ class BenchmarkTests(unittest.TestCase):
                 device="cuda",
             )
             names = [stage.name for stage in program.stages]
-            self.assertEqual(names[3:5], ["04-frontend.mlir", "05-gpu.mlir"])
-            gpu = (Path(directory) / "05-gpu.mlir").read_text()
+            self.assertEqual(names[2:4], ["03-frontend.mlir", "04-gpu.mlir"])
+            gpu = (Path(directory) / "04-gpu.mlir").read_text()
             self.assertIn("gpu.launch_func", gpu)
             self.assertIn("gpu.module", gpu)
-            self.assertIn("gpu.binary", (Path(directory) / "06-llvm.mlir").read_text())
+            self.assertIn("gpu.binary", (Path(directory) / "05-llvm.mlir").read_text())
 
             output = program.run()
             self.assertTrue(output.startswith("r = "), output)

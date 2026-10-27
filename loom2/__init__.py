@@ -6,7 +6,7 @@ metadata; no Python-side expression AST is retained.
 """
 
 from .lang import Vec, VecIndex, VecValue
-from .compile import CompiledFunction, SynthesisError, SynthesisProgram, compile, synth_fun
+from .compile import DEFAULT_MAX_SIZE, Cfg, CompiledFunction, TreeAutomaton, SynthesisError, SynthesisProgram, compile, synth_fun
 from .tracing import trace
 
 try:
@@ -18,6 +18,9 @@ except ImportError:  # The pure-Python surface is usable before maturin builds.
 
 
 __all__ = [
+    "DEFAULT_MAX_SIZE",
+    "Cfg",
+    "TreeAutomaton",
     "Vec",
     "VecIndex",
     "VecValue",

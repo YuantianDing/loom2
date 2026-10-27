@@ -56,6 +56,15 @@ class PublicApiTests(unittest.TestCase):
         value |= (value[prefixes] & value[suffixes]).exists()
         self.assertEqual(tuple(value), (True, True, True))
 
+    def test_default_max_size_matches_the_native_default(self):
+        try:
+            from loom2 import _loom2
+        except ImportError:
+            self.skipTest("native extension not built")
+        if not hasattr(_loom2, "DEFAULT_MAX_SIZE"):
+            self.skipTest("native extension built without the llvm feature")
+        self.assertEqual(loom2.DEFAULT_MAX_SIZE, _loom2.DEFAULT_MAX_SIZE)
+
     def test_native_version_is_optional_for_the_pure_python_surface(self):
         version = loom2.native_version()
         self.assertTrue(version is None or isinstance(version, str))

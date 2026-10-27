@@ -20,6 +20,12 @@ pub(crate) fn register(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(native::build_synthesizer, module)?)?;
     #[cfg(feature = "llvm")]
     module.add_class::<native::JitFunction>()?;
+    // Must equal `loom2.DEFAULT_MAX_SIZE`; tests/test_public_api.py checks.
+    #[cfg(feature = "llvm")]
+    module.add(
+        "DEFAULT_MAX_SIZE",
+        crate::lowering::exec::SynthesisOptions::default().max_expression_size,
+    )?;
     // Whether `build_synthesizer(..., device="cuda")` is available.
     module.add("CUDA_BACKEND", cfg!(feature = "cuda"))?;
     Ok(())
@@ -41,8 +47,10 @@ mod native {
     use crate::lowering::pipeline;
     use crate::problem::SynthFun;
 
-    /// One `(symbol, width, [(constructor, [child symbols])])` grammar entry.
-    type NonterminalSpec = (String, usize, Vec<(String, Vec<String>)>);
+    /// One `(symbol, width, hash group, solution, [(constructor, [child
+    /// symbols], commutative)])` grammar entry; with no `solution` marked,
+    /// the start symbol's group is.
+    type NonterminalSpec = (String, usize, String, bool, Vec<(String, Vec<String>, bool)>);
 
     /// Lower traced functions and a grammar to a native synthesizer.
     ///
@@ -52,7 +60,7 @@ mod native {
     #[pyo3(signature = (
         name, functions, grammar, constraint, artifact_dir, executable, *,
         max_size, max_pool_bytes, initial_hash_capacity, optimization_level, openmp,
-        device = "cpu", cuda_chip = None, cuda_block_size = 256
+        debug_info = true, device = "cpu", cuda_chip = None, cuda_block_size = 256
     ))]
     #[allow(clippy::too_many_arguments)]
     pub fn build_synthesizer(
@@ -67,6 +75,7 @@ mod native {
         initial_hash_capacity: usize,
         optimization_level: u8,
         openmp: bool,
+        debug_info: bool,
         device: &str,
         cuda_chip: Option<String>,
         cuda_block_size: usize,
@@ -84,16 +93,16 @@ mod native {
         };
         let start = grammar
             .first()
-            .map(|(symbol, _, _)| symbol.clone())
+            .map(|(symbol, ..)| symbol.clone())
             .ok_or_else(|| PyValueError::new_err("the synthesis grammar must not be empty"))?;
         let nonterminals = grammar
             .into_iter()
-            .map(|(symbol, width, productions)| {
+            .map(|(symbol, width, group, solution, productions)| {
                 let productions = productions
                     .into_iter()
-                    .map(|(constructor, children)| Production::new(constructor, children))
+                    .map(|(constructor, children, commutative)| Production::new(constructor, children).with_commutative(commutative))
                     .collect();
-                Nonterminal::new(symbol, width, productions)
+                Nonterminal::new(symbol, width, productions).with_group(group).with_solution(solution)
             })
             .collect();
         let grammar = Grammar::new(start, nonterminals).map_err(|error| PyValueError::new_err(error.to_string()))?;
@@ -111,6 +120,7 @@ mod native {
             optimization_level,
             openmp,
             device,
+            debug_info,
             ..BackendOptions::default()
         };
         pipeline::build_synthesizer(&problem, options, &backend, &artifact_dir, &executable)

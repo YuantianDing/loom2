@@ -3,7 +3,7 @@
 Loom 2 is a Python/Rust compiler for syntax-guided synthesis over finite
 Boolean semantics. Constructors are ordinary Python functions over `Vec` bit
 tensors. They are traced into a Rust tensor IR, lowered to packed `i64` word
-programs, emitted as MLIR with Melior using only upstream dialects, and
+programs, emitted as MLIR with [high-mlir](../high-mlir) using only upstream dialects, and
 compiled through LLVM into a parallel native enumerator.
 
 See [the architecture guide](docs/architecture.md) for each stage.
@@ -45,12 +45,14 @@ cargo test
 
 Native code generation needs LLVM/MLIR 23. `mlir-sys` locates it through
 `$MLIR_SYS_230_PREFIX/bin/llvm-config`; `TABLEGEN_230_PREFIX` must point at
-the same prefix. If your installation keeps `llvm-config` elsewhere (vcpkg
-uses `tools/llvm/`), point both variables at a directory whose `bin/`
-contains a symlink to it.
+the same prefix. `.cargo/config.toml` sets both to `.llvm` in this
+directory, a gitignored prefix: make it a symlink to your installation, or,
+if that keeps `llvm-config` elsewhere (vcpkg uses `tools/llvm/`), a
+directory whose `bin/` contains a symlink to it. Exported variables take
+precedence.
 
 ```console
-export MLIR_SYS_230_PREFIX=/path/to/llvm-23 TABLEGEN_230_PREFIX=/path/to/llvm-23
+ln -s /path/to/llvm-23 .llvm
 cargo test --features llvm
 maturin develop --release --features llvm,pyo3/extension-module
 python -m unittest discover -s tests
@@ -73,7 +75,7 @@ the one `nvidia-smi` reports.
 git submodule update --init
 cargo test --features cuda
 maturin develop --release --features cuda,pyo3/extension-module
-python benchmark/Reg+/run.py 0030 --device cuda --run
+python benchmark/run.py Reg+ 0030 --device cuda --run
 ```
 
 `loom2.synth_fun(..., device="cuda")` selects it from Python; see
@@ -103,12 +105,18 @@ JSON data:
 | `theories/<theory>.json` | LTL/CTL: constructors by kind (`G`, `U`, `AF`, `EU`, ...) |
 | `fo.py`, `ltl.py`, `ctl.py` | interpret a theory JSON with the `Vec` API             |
 | `regex.py`               | shared regex theory builder (one substring `Literal`)     |
-| `run.py`                 | build one benchmark and keep every stage                  |
+
+`benchmark/run.py` builds one benchmark of any family:
 
 ```console
-python benchmark/Reg+/run.py 0030 --run
+python benchmark/run.py Reg+ 0030 --run
 ```
 
-writes `01-tensor-fn.ir`, `02-fused.ir`, `03-loops.ir`, the MLIR/LLVM
-stages through `08-program.o`, the executable `09-reg-plus-0030`, and
-`10-result.txt` to `benchmark/Reg+/0030-ir/`.
+builds the executable `benchmark/build/reg-plus-0030` (with debug info;
+`--no-debug-info` drops it), runs it, and prints the expression. The
+intermediate stages are discarded unless `--stages DIR` keeps them:
+`01-tensor-fn.ir`, `02-fused.ir`, the MLIR/LLVM stages `03-frontend.mlir`
+through `07-program.o`, the executable `08-reg-plus-0030`, and
+`09-result.txt`. The generated code's line tables point at the Rust code
+in `src/lowering/exec` that emitted each operation, so a debugger shows
+which emitter line produced the instruction being stepped.

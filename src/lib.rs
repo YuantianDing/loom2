@@ -5,12 +5,12 @@
 //! - compile defines the tensor-expression graph produced by Python tracing.
 //! - grammar and problem describe syntax-guided synthesis inputs.
 //! - lowering::circuit implements packed-i64 permutation circuits.
-//! - lowering::words lowers each TensorFn to packed i64 word operations.
-//! - lowering::exec emits the synthesis module with Melior (upstream dialects).
+//! - lowering::exec lowers each fused TensorFn to packed word operations and
+//!   emits the synthesis module with high-mlir (upstream dialects).
 //! - lowering::llvm runs MLIR/LLVM lowering and links the CPU runtime.
 //!
 //! MLIR support is feature-gated so the IR and circuit tests do not require a
-//! matching LLVM installation. Enable `mlir` for the Melior emitters and `llvm`
+//! matching LLVM installation. Enable `mlir` for the high-mlir emitters and `llvm`
 //! for native code generation and the `cpp/cpu` runtime.
 
 mod bindings;

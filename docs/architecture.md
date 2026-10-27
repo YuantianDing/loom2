@@ -10,16 +10,15 @@ enumerator. Files under `src/.old/` are historical and are not built.
 Python Vec callbacks           loom2/lang, loom2/tracing
     -> TensorFn graphs         src/compile          01-tensor-fn.ir
     -> fused graphs            src/compile/pass     02-fused.ir
-    -> vector loop programs    src/lowering/loops   03-loops.ir
-    -> synthesis module        src/lowering/exec    04-frontend.mlir   (Melior)
-    -> CPU MLIR                src/lowering/llvm    05-cpu.mlir
-    -> LLVM-dialect MLIR                            06-llvm.mlir
-    -> LLVM IR                                      07-llvm.ll
-    -> native object                                08-program.o
+    -> synthesis module        src/lowering/exec    03-frontend.mlir   (high-mlir)
+    -> CPU MLIR                src/lowering/llvm    04-cpu.mlir
+    -> LLVM-dialect MLIR                            05-llvm.mlir
+    -> LLVM IR                                      06-llvm.ll
+    -> native object                                07-program.o
     -> executable              + cpp/cpu runtime
 ```
 
-With `device="cuda"`, `05-gpu.mlir` replaces `05-cpu.mlir`, the LLVM-dialect
+With `device="cuda"`, `04-gpu.mlir` replaces `04-cpu.mlir`, the LLVM-dialect
 module carries one PTX `gpu.binary` per kernel, and the executable links the
 `cpp/cuda` runtime (see [CUDA backend](#cuda-backend)).
 
@@ -50,9 +49,8 @@ src/
 └── lowering/
     ├── circuit/           permutation circuits (currently unused)
     ├── packed.rs          row/lane reference evaluator
-    ├── loops.rs           TensorFn -> LoopProgram (vector loops)
-    ├── exec/              Melior emission (`mlir` feature)
-    │   ├── functions.rs   define_fun_* and the constraint
+    ├── exec/              high-mlir emission (`mlir` feature)
+    │   ├── functions.rs   fused TensorFn -> define_fun_* and the constraint
     │   ├── hash_filter.rs compute_hash and per-production filters
     │   └── synthesis.rs   synthesize, main, result printer
     ├── llvm.rs            pass pipelines, LLVM codegen, linking (`llvm`)
@@ -60,7 +58,8 @@ src/
     └── pipeline.rs        end-to-end build with every stage (`llvm`)
 cpp/cpu/                   hash set, memref copy, and printer runtime
 cpp/cuda/                  cuco hash set, managed allocation, mgpu* runtime
-benchmark/<family>/        benchmark.json, models/, theories/, regex.py, run.py
+benchmark/<family>/        benchmark.json, models/, theories/, regex.py
+benchmark/run.py           build (and run) one benchmark of any family
 ```
 
 ## Frontend
@@ -117,13 +116,12 @@ jagged input, `[rows, reduce(lanes)]` folds each row's lanes (missing lanes are
 the identity).
 Tracing itself emits only permutes, logic, and reductions.
 
-## Loop programs
+## Constructor functions
 
-`loops::lower_loop_program` turns a fused `TensorFn` into a `LoopProgram`:
-vector variables (inputs, temps, outputs, each with a word count and a live
-range) and whole-vector operations (`Load`, `Store`, `Broadcast`, `Constant`,
-`Splat`, `And`/`Or`/`Xor`, `Rotl`, `Copy`, `ForLoop`). A `ForLoop` body is
-the live range of its induction variable. Programs use 32-bit words when all
+`exec::functions` lowers a fused `TensorFn` straight to a high-mlir
+`func.func` over `vector<Nxi64>` values: whole-vector `arith` logic and
+rotations, step tables in read-only `memref.global`s, and `scf.for` loops
+that carry one accumulator vector. Functions use 32-bit words when all
 values fit in 32 bits and 64-bit words otherwise.
 
 Values are lane-major: `lanes x groups` words. Bit movement is table driven:
@@ -131,17 +129,37 @@ a permute loops over steps, broadcasting one source word, masking it, and
 rotating every destination word by its own amount; `BVGather`/`BVGather2`
 loop over lanes and fold each lane into a `groups`-word accumulator while it
 is produced. Code size therefore does not depend on the number of bits, which
-keeps LLVM compilation fast; tests check this and compare every program with
-the row/lane reference evaluator in `packed.rs`.
+keeps LLVM compilation fast; tests check this and compare the JIT of every
+function, at -O0 and -O3, with the row/lane reference evaluator in `packed.rs`.
 
 ## Executable model
 
 Pools live in one preallocated arena. A row is
-`[semantic words | preorder token bits]`. For every size and nonterminal,
-`synthesize` calls one `hash_filter_*` per rule and child-size composition.
+`[semantic words | preorder token bits]`. `synthesize` loops over sizes at
+run time and, for every nonterminal, calls one `hash_filter_*` per rule and
+child-size composition; a small table keeps every pool's `(offset, rows)`,
+so the code grows with the productions, not with the sizes.
+
+Nonterminals of one hash group share a hash set, so a value is kept only
+the first time any of them produces it; candidates of `solution`
+nonterminals (by default those in the start symbol's group) are checked
+against the constraints. `loom2.Cfg.subtract` removes a tree language from
+a grammar: it determinizes the grammar into a bottom-up tree automaton
+(subset construction), multiplies in the complement of the removed language
+(or an automaton avoiding law patterns), and turns the product back into a
+grammar with one nonterminal per reachable state and original nonterminal.
+Copies made for law patterns share their original's hash group.
 Each filter is an `scf.parallel` loop that evaluates the constructor, checks
 the per-nonterminal hash set before claiming a row, and records the first
 candidate whose constraint holds in `%solution`/`%found` for early exit.
+
+Constructors whose fused graph has a `gather` or `gather2` are also built
+bit-sliced (`exec::sliced`): every logical bit is one `i64` word holding
+that bit of 64 candidates, so a gather step is one word operation for all
+of them. Their filters iterate over 64-row child blocks: each block is
+turned into bit-sliced form with 64x64 bit transposes, every later child's
+block rotated by one of 64 shifts so the shifts cover the cartesian product,
+and the 64 results are transposed back and checked one by one.
 `main` prints the solution with a generated, schema-aware printer.
 
 ## Backend
@@ -169,10 +187,10 @@ passes alone:
 inline, canonicalize, cse
 func.func(scf-parallel-loop-tiling{block_size}, gpu-map-parallel-loops,
           convert-parallel-loops-to-gpu, gpu-launch-sink-index-computations)
-gpu-kernel-outlining                                          05-gpu.mlir
+gpu-kernel-outlining                                          04-gpu.mlir
 nvvm-attach-target{chip}, gpu.module(convert-gpu-to-nvvm), host *-to-llvm,
 finalize-memref-to-llvm{use-generic-functions}, gpu-to-llvm,
-gpu-module-to-binary{format=isa}                              06-llvm.mlir
+gpu-module-to-binary{format=isa}                              05-llvm.mlir
 ```
 
 Each filter's `scf.parallel` becomes one kernel: the tile loop maps to
@@ -196,9 +214,9 @@ kernel names must be valid PTX identifiers.
 ## JIT
 
 `loom2.compile` functions called on `VecValue` arguments run through
-`lowering::jit`. The traced `TensorFn` is fused, lowered to a loop program,
-and emitted as `define_fun_<name>` exactly as in the synthesizer, plus a
-public `loom_jit_entry(%out: !llvm.ptr, %in: !llvm.ptr)` that loads each
+`lowering::jit`. The traced `TensorFn` is fused and emitted as
+`define_fun_<name>` exactly as in the synthesizer, plus a public
+`loom_jit_entry(%out: memref<Mxi64>, %in: memref<Nxi64>)` that loads each
 argument's `vector<Nxi64>` from one concatenated word buffer, calls the
 constructor, and stores the result. After `lower_to_cpu_mlir` and
 `lower_to_llvm_mlir` (without OpenMP), MLIR's ExecutionEngine compiles the
@@ -206,15 +224,15 @@ module with LLVM ORC for the host CPU. Calls made while tracing run the
 Python body, so constructors still inline into their callers' graphs.
 
 `tests/test_jit.py` checks every operator and every constructor of one
-benchmark per theory against the Python body; with `llvm`, the loop-program
-tests also JIT each function at -O0 and -O3.
+benchmark per theory against the Python body; with `llvm`, the
+`exec::functions` tests also JIT each function at -O0 and -O3.
 
 ## Build boundaries
 
 | Feature   | Adds                                         | Needs           |
 | --------- | -------------------------------------------- | --------------- |
-| (default) | IR, tracing builder, fusion, loop programs | Rust only       |
-| `mlir`    | Melior emission                              | LLVM/MLIR 23    |
+| (default) | IR, tracing builder, fusion, reference evaluator | Rust only   |
+| `mlir`    | high-mlir emission                           | LLVM/MLIR 23    |
 | `llvm`    | codegen, linking, `build_synthesizer`, `JitFunction`, `cpp/cpu` runtime | LLVM/MLIR 23, C/C++ compiler, libomp |
 | `cuda`    | `Device::Cuda`, `cpp/cuda` runtime          | `llvm` + CUDA toolkit (nvcc), cuco submodule, an NVIDIA GPU to run |
 

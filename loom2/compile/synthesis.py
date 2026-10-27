@@ -25,7 +25,13 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 from loom2.lang import Vec
 
+from .cfg import Cfg
 from .function import CompiledFunction, compile as compile_function
+
+
+# Largest candidate, in constructor tokens, when no ``max_size`` is given.
+# The benchmark runners and Rust's ``SynthesisOptions::default`` share it.
+DEFAULT_MAX_SIZE = 20
 
 
 class SynthesisError(RuntimeError):
@@ -96,16 +102,19 @@ def synth_fun(
     output: Union[str, "os.PathLike[str]"],
     *,
     language: Vec,
-    grammar: Mapping[str, Sequence[GrammarEntry]],
+    grammar: Union[Mapping[str, Sequence[GrammarEntry]], Cfg],
     constraints: Mapping[str, bool],
     languages: Optional[Mapping[str, Vec]] = None,
+    groups: Optional[Mapping[str, str]] = None,
+    commutative: Sequence[CompiledFunction] = (),
     name: str = "r",
     artifact_dir: Optional[Union[str, "os.PathLike[str]"]] = None,
-    max_size: int = 8,
+    max_size: int = DEFAULT_MAX_SIZE,
     max_pool_bytes: int = 64 * 1024 * 1024,
     initial_hash_capacity: int = 4096,
     optimization_level: int = 1,
     openmp: bool = True,
+    debug_info: bool = True,
     device: str = "cpu",
     cuda_chip: Optional[str] = None,
     cuda_block_size: int = 256,
@@ -119,16 +128,51 @@ def synth_fun(
     symbol's language. Constraints map labels in ``language`` to their
     required Boolean value.
 
+    ``grammar`` may also be a :class:`~loom2.Cfg`, for example one with
+    patterns or tree languages subtracted: its copies of a nonterminal take
+    the language of the nonterminal they trace (``Cfg.origin``), its hash
+    groups, and its ``solutions`` are the candidates checked against the
+    constraints.
+
+    ``groups`` maps nonterminals to hash groups (default: their own name,
+    or the ``Cfg``'s groups). Nonterminals of one group share one hash set,
+    so a value is kept only the first time any of them produces it: group
+    only nonterminals that denote the same values, of the same width.
+    Without a ``Cfg``, every nonterminal in the start symbol's group is a
+    candidate solution, checked against the constraints.
+
+    ``commutative`` lists binary constructors with ``f(x, y) = f(y, x)``
+    (added to the ``Cfg``'s): of two candidates that only swap the children
+    of such a production, only the one whose first child was stored first
+    is built, when both children share a hash group and the grammar also
+    has the swapped production.
+
     ``device="cuda"`` runs every production filter as a CUDA kernel
     (``cuda_block_size`` threads per block, compiled for ``cuda_chip``, such
     as ``"sm_75"``; default: the GPU found when loom2 was built). It needs
     loom2 built with the ``cuda`` feature.
+
+    ``debug_info`` gives the executable DWARF line tables; the generated
+    code's lines point at the Rust code in loom2 that emitted it.
     """
     languages = dict(languages or {})
     if not grammar:
         raise ValueError("the synthesis grammar must not be empty")
+    solutions: Tuple[str, ...] = ()
+    commutative = set(commutative)
+    if isinstance(grammar, Cfg):
+        cfg = grammar
+        groups = {**{symbol: cfg.group(symbol) for symbol in cfg.nonterminals}, **dict(groups or {})}
+        languages = {symbol: languages.get(symbol, languages.get(cfg.origin(symbol), language)) for symbol in cfg.nonterminals}
+        solutions = cfg.solutions
+        commutative |= cfg.commutative
+        grammar = {symbol: [(function, *children) for function, children in cfg.productions(symbol)] for symbol in cfg.nonterminals}
+    groups = dict(groups or {})
+    unknown_groups = [symbol for symbol in groups if symbol not in grammar]
+    if unknown_groups:
+        raise ValueError(f"groups names unknown nonterminal {unknown_groups[0]!r}")
     functions: Dict[str, CompiledFunction] = {}
-    specification: List[Tuple[str, int, List[Tuple[str, List[str]]]]] = []
+    specification: List[Tuple[str, int, str, bool, List[Tuple[str, List[str], bool]]]] = []
     for symbol, entries in grammar.items():
         width = languages.get(symbol, language).bit_width()
         if not entries:
@@ -149,8 +193,8 @@ def synth_fun(
             if unknown:
                 raise ValueError(f"production references unknown nonterminal {unknown[0]!r}")
             functions.setdefault(function.__name__, function)
-            productions.append((function.__name__, list(children)))
-        specification.append((symbol, width, productions))
+            productions.append((function.__name__, list(children), function in commutative))
+        specification.append((symbol, width, groups.get(symbol, symbol), symbol in solutions, productions))
     for label in constraints:
         language.index(label)
 
@@ -174,6 +218,7 @@ def synth_fun(
             initial_hash_capacity=initial_hash_capacity,
             optimization_level=optimization_level,
             openmp=openmp,
+            debug_info=debug_info,
             device=device,
             cuda_chip=cuda_chip,
             cuda_block_size=cuda_block_size,
@@ -191,6 +236,7 @@ def synth_fun(
             "initial_hash_capacity": initial_hash_capacity,
             "optimization_level": optimization_level,
             "openmp": openmp,
+            "debug_info": debug_info,
             "device": device,
             "cuda_chip": cuda_chip,
             "cuda_block_size": cuda_block_size,
@@ -205,4 +251,4 @@ def synth_fun(
     return SynthesisProgram(output_path, artifacts, stages)
 
 
-__all__ = ["SynthesisError", "SynthesisProgram", "synth_fun"]
+__all__ = ["DEFAULT_MAX_SIZE", "SynthesisError", "SynthesisProgram", "synth_fun"]

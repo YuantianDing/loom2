@@ -79,3 +79,5 @@ experiments/*.db
 experiments/*.db-journal
 experiments/*.log
 *-ir/
+# Local LLVM/MLIR 23 prefix (see .cargo/config.toml).
+/.llvm

@@ -1,0 +1,6 @@
+# `.llvm` is a local (gitignored) prefix whose `bin/llvm-config` points at an
+# LLVM/MLIR 23 installation, as required by `mlir-sys` for the `mlir`, `llvm`
+# and `cuda` features. A symlink to an existing prefix works.
+[env]
+MLIR_SYS_230_PREFIX = { value = ".llvm", relative = true }
+TABLEGEN_230_PREFIX = { value = ".llvm", relative = true }

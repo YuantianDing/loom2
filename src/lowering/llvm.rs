@@ -92,6 +92,9 @@ pub struct BackendOptions {
     pub linker: Option<PathBuf>,
     /// Extra arguments appended immediately before `-o <executable>`.
     pub linker_arguments: Vec<OsString>,
+    /// Emit DWARF line tables for the generated code (pointing at the Rust
+    /// code that built each operation) and the result printer.
+    pub debug_info: bool,
 }
 
 impl Default for BackendOptions {
@@ -102,6 +105,7 @@ impl Default for BackendOptions {
             device: Device::Cpu,
             linker: None,
             linker_arguments: Vec::new(),
+            debug_info: true,
         }
     }
 }
@@ -175,6 +179,13 @@ fn run_pipeline(context: &Context, module: &mut Module, pipeline: &str) -> Resul
         .map_err(|error| BackendError::Compile(format!("MLIR pipeline {pipeline} failed: {error}")))
 }
 
+/// Give every `llvm.func` of the LLVM-dialect `module` a debug scope, so the
+/// object's line tables point at the operations' locations: the Rust code
+/// that built them (see [`crate::lowering::exec::to_melior`]).
+pub fn attach_debug_info(context: &Context, module: &mut Module) -> Result<(), BackendError> {
+    run_pipeline(context, module, "builtin.module(ensure-debug-info-scope-on-llvm-func{emission-kind=Full})")
+}
+
 /// Inline packed constructors and map `scf.parallel` to OpenMP (or serial
 /// loops). The result is still standard CPU-level MLIR.
 pub fn lower_to_cpu_mlir(context: &Context, module: &mut Module, options: &BackendOptions) -> Result<(), BackendError> {
@@ -191,7 +202,93 @@ pub fn lower_to_cpu_mlir(context: &Context, module: &mut Module, options: &Backe
     if options.optimization_level > 0 {
         passes.push("canonicalize");
     }
-    run_pipeline(context, module, &format!("builtin.module({})", passes.join(",")))
+    run_pipeline(context, module, &format!("builtin.module({})", passes.join(",")))?;
+    if options.openmp {
+        // Iterations differ a lot in cost (a duplicate stops at the hash
+        // set, a new value is stored and checked), so the default static
+        // schedule leaves threads idle at the end of each filter.
+        set_schedule(context, module, "dynamic");
+    }
+    hoist_static_allocas(module);
+    Ok(())
+}
+
+/// Move every statically sized `memref.alloca` to the start of its nearest
+/// enclosing `memref.alloca_scope` (with OpenMP, one per parallel
+/// iteration) or else function. Inlined constructors keep buffers on the
+/// stack, also inside loops (over gather steps, sliced lanes, or serial
+/// candidates), which would grow the stack every iteration; iterations of
+/// such a loop never overlap, so they can share one buffer.
+fn hoist_static_allocas(module: &mut Module) {
+    use mlir_sys::*;
+    unsafe fn name_is(operation: MlirOperation, name: &str) -> bool {
+        // SAFETY: `operation` is a live operation.
+        unsafe { melior::StringRef::from_raw(mlirIdentifierStr(mlirOperationGetName(operation))).as_str() == Ok(name) }
+    }
+    unsafe extern "C" fn collect(operation: MlirOperation, allocas: *mut c_void) -> MlirWalkResult {
+        // SAFETY: `allocas` is the vector passed to the walk below.
+        unsafe {
+            if name_is(operation, "memref.alloca") && mlirOperationGetNumOperands(operation) == 0 {
+                (*(allocas as *mut Vec<MlirOperation>)).push(operation);
+            }
+        }
+        MlirWalkResult_MlirWalkResultAdvance
+    }
+    let mut allocas: Vec<MlirOperation> = Vec::new();
+    // SAFETY: operations are only collected during the walk, and moved after
+    // it; moving one does not invalidate the others.
+    unsafe {
+        mlirOperationWalk(
+            module.as_operation_mut().to_raw(),
+            Some(collect),
+            &mut allocas as *mut Vec<MlirOperation> as *mut c_void,
+            MlirWalkOrder_MlirWalkPreOrder,
+        );
+        for alloca in allocas {
+            let mut scope = mlirOperationGetParentOperation(alloca);
+            while !scope.ptr.is_null() && !name_is(scope, "func.func") && !name_is(scope, "memref.alloca_scope") {
+                scope = mlirOperationGetParentOperation(scope);
+            }
+            if scope.ptr.is_null() {
+                continue;
+            }
+            let entry = mlirRegionGetFirstBlock(mlirOperationGetRegion(scope, 0));
+            mlirOperationMoveBefore(alloca, mlirBlockGetFirstOperation(entry));
+        }
+    }
+}
+
+/// Give every `omp.wsloop` the schedule `kind` (`static`, `dynamic`, ...).
+fn set_schedule(context: &Context, module: &mut Module, kind: &str) {
+    use melior::ir::attribute::AttributeLike;
+    use mlir_sys::*;
+    struct State {
+        attribute: MlirAttribute,
+    }
+    unsafe extern "C" fn visit(operation: MlirOperation, state: *mut c_void) -> MlirWalkResult {
+        // SAFETY: `state` is the `State` passed to the walk below, and
+        // `operation` is alive while it is visited.
+        unsafe {
+            let state = &*(state as *const State);
+            let name = melior::StringRef::from_raw(mlirIdentifierStr(mlirOperationGetName(operation)));
+            if name.as_str() == Ok("omp.wsloop") {
+                let key = melior::StringRef::new("schedule_kind");
+                mlirOperationSetInherentAttributeByName(operation, key.to_raw(), state.attribute);
+            }
+            MlirWalkResult_MlirWalkResultAdvance
+        }
+    }
+    let attribute = melior::ir::Attribute::parse(context, &format!("#omp<schedulekind {kind}>")).expect("schedule kind");
+    let state = State { attribute: attribute.to_raw() };
+    // SAFETY: the callback only sets an attribute owned by the context.
+    unsafe {
+        mlirOperationWalk(
+            module.as_operation_mut().to_raw(),
+            Some(visit),
+            &state as *const State as *mut c_void,
+            MlirWalkOrder_MlirWalkPreOrder,
+        )
+    };
 }
 
 /// Inline packed constructors and turn every `scf.parallel` filter loop into
@@ -514,6 +611,7 @@ pub fn compile_c_object(source: &Path, object: &Path, options: &BackendOptions) 
     let compiler = env::var_os("CC").unwrap_or_else(|| "cc".into());
     let output = Command::new(compiler)
         .arg(format!("-O{}", options.optimization_level))
+        .args(options.debug_info.then_some("-g"))
         .args(["-std=c11", "-fPIC", "-c"])
         .arg(source)
         .arg("-o")

@@ -1,7 +1,7 @@
 //! Lower traced tensor functions to a native synthesizer.
 //!
 //! ```text
-//! TensorFn --pass::fuse--> fused TensorFn --loops--> LoopProgram --exec (Melior)--> synthesis module
+//! TensorFn --pass::fuse--> fused TensorFn --exec (high-mlir)--> synthesis module
 //!          --llvm--> CPU MLIR -> LLVM MLIR -> LLVM IR -> object --link--> executable
 //! ```
 //!
@@ -15,7 +15,7 @@
 //!   func.func private @mlir_loom_hashset_i64_insert_one(i64, i64) -> i1
 //!   func.func private @mlir_loom_print_result(memref<?xi64>, index)
 //!
-//!   // Read-only step tables of the loop programs.
+//!   // Read-only step tables of the constructors.
 //!   memref.global "private" constant @table_<constructor>_t<k> : memref<...>
 //!
 //!   // One pure function for every constructor; vectors in, vector out.
@@ -39,8 +39,8 @@
 //! }
 //! ```
 //!
-//! [`loops`] (always built) and [`packed`] (the reference evaluator) need no
-//! LLVM. [`circuit`] (verified permutation circuits) is currently unused.
+//! [`packed`] (the reference evaluator) needs no LLVM. [`circuit`] (verified
+//! permutation circuits) is currently unused.
 //! The `mlir` feature enables [`exec`]; `llvm` adds [`llvm`], [`pipeline`],
 //! and [`jit`] (in-process LLVM JIT of one constructor).
 
@@ -57,7 +57,11 @@ pub mod llvm;
 #[cfg(feature = "llvm")]
 pub mod pipeline;
 pub mod packed;
-pub mod loops;
+
+/// `i64` words needed for `bits` bits.
+pub fn word_count(bits: usize) -> usize {
+    bits.div_ceil(64)
+}
 
 /// Result type shared by lowering stages.
 pub type LoweringResult<T> = Result<T, LoweringError>;

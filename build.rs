@@ -54,12 +54,14 @@ fn build_cpu_runtime(manifest: &Path, output: &Path) {
         .cargo_metadata(false)
         .cpp(true)
         .std("c++17")
+        .debug(true)
         .include(&cpu)
         .file(cpu.join("i64hashset.cpp"))
         .file(cpu.join("memref_copy.cpp"))
         .compile("loom2_cpu_cpp");
     cc::Build::new()
         .cargo_metadata(false)
+        .debug(true)
         .file(cpu.join("main.c"))
         .compile("loom2_cpu_c");
 
@@ -91,7 +93,8 @@ fn build_cuda_runtime(manifest: &Path, output: &Path) {
     }
     let arch = env::var("LOOM2_CUDA_ARCH").ok().or_else(detect_cuda_arch).unwrap_or_else(|| "75".into());
     let gencode = format!("arch=compute_{arch},code=[sm_{arch},compute_{arch}]");
-    let common = ["-std=c++17", "--expt-relaxed-constexpr", "--expt-extended-lambda", "-O3"];
+    // `-g` is host debug info; `-lineinfo` keeps device code optimized.
+    let common = ["-std=c++17", "--expt-relaxed-constexpr", "--expt-extended-lambda", "-O3", "-g", "-lineinfo"];
 
     // Relocatable device library linked into every generated kernel at load
     // time, embedded as a byte array.
