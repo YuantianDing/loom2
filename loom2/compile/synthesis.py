@@ -142,10 +142,11 @@ def synth_fun(
     candidate solution, checked against the constraints.
 
     ``commutative`` lists binary constructors with ``f(x, y) = f(y, x)``
-    (added to the ``Cfg``'s): of two candidates that only swap the children
-    of such a production, only the one whose first child was stored first
-    is built, when both children share a hash group and the grammar also
-    has the swapped production.
+    (added to the ``Cfg``'s). Symmetry is pruned when both children share a
+    hash group and the grammar also has the swapped production. Mirrored
+    child-size splits and distinct pools in reverse storage order are skipped.
+    Identical child pools use a triangular filter over rows (packed) or
+    64-row blocks (transposed); pairs within a transposed block are left intact.
 
     ``device="cuda"`` runs every production filter as a CUDA kernel
     (``cuda_block_size`` threads per block, compiled for ``cuda_chip``, such
@@ -167,6 +168,9 @@ def synth_fun(
         solutions = cfg.solutions
         commutative |= cfg.commutative
         grammar = {symbol: [(function, *children) for function, children in cfg.productions(symbol)] for symbol in cfg.nonterminals}
+    for function in commutative:
+        if not isinstance(function, CompiledFunction) or function.arity != 2:
+            raise ValueError(f"commutative constructors must be binary loom2.compile functions, not {function!r}")
     groups = dict(groups or {})
     unknown_groups = [symbol for symbol in groups if symbol not in grammar]
     if unknown_groups:
@@ -231,6 +235,7 @@ def synth_fun(
         "frontend": "loom2 Vec -> TensorFn -> packed i64 words -> Melior MLIR",
         "executable": str(output_path),
         "options": {
+            "commutative": sorted(function.__name__ for function in commutative),
             "max_expression_size": max_size,
             "max_pool_bytes": max_pool_bytes,
             "initial_hash_capacity": initial_hash_capacity,

@@ -207,7 +207,7 @@ mod tests {
     }
 
     /// Sets of exponents below 12 with `or` (union) and `mul` (all sums,
-    /// a commutative `gather2`, so it is built bit-sliced). The target
+    /// a commutative `gather2`, so it is built transposed). The target
     /// `{1, 2, 4}` needs 7 constructors, e.g. `or(c1, mul(c1, mul(c1, c02)))`.
     fn exponent_problem(commutative: bool) -> SynthFun {
         const WIDTH: usize = 12;
@@ -308,11 +308,11 @@ mod tests {
     }
 
     #[test]
-    fn commutative_bit_sliced_constructors_keep_the_smallest_solution() {
+    fn commutative_transposed_constructors_keep_the_smallest_solution() {
         for commutative in [false, true] {
             let problem = exponent_problem(commutative);
             let plan = plan_synthesis(&problem, true).unwrap();
-            assert!(plan.sliced.iter().any(|&sliced| sliced), "mul is bit-sliced");
+            assert!(plan.transposed.iter().any(|&transposed| transposed), "mul is transposed");
             assert_eq!(plan.filters.iter().filter(|filter| filter.commutative).count(), if commutative { 2 } else { 0 });
             let directory = std::env::temp_dir().join(format!("loom2-commutative-{}-{commutative}", std::process::id()));
             let executable = directory.join("synth");

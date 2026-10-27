@@ -45,10 +45,11 @@ use high_mlir::arith::{self, CmpIPredicate, Constant};
 use high_mlir::func::Signature;
 use high_mlir::{builtin, memref, scf, Attr, Root, Ty, Val, I32, I64, I8, INDEX};
 
+use super::commutative::lower_commutative_hash_filter;
 use super::functions::{lower_constraint, lower_tensor_fn, result_bits};
 use super::hash_filter::{hashset_create, lower_compute_hash, lower_hash_filter, HashFilterConfig};
-use super::sliced::{is_sliced, lower_sliced_tensor_fn, lower_transpose};
-use super::sliced::to_i64;
+use super::transposed::{is_transposed, lower_transposed_tensor_fn, lower_transpose};
+use super::transposed::to_i64;
 use super::{index, invalid, pool_view, to_index, words_type, Result};
 use crate::compile::pass::fuse;
 use crate::compile::TensorFn;
@@ -90,8 +91,8 @@ impl Default for SynthesisOptions {
 pub struct SynthesisPlan {
     /// One fused graph per constructor, in token order.
     pub constructors: Vec<TensorFn>,
-    /// Whether each constructor is built bit-sliced (see [`super::sliced`]).
-    pub sliced: Vec<bool>,
+    /// Whether each constructor is built transposed (see [`super::transposed`]).
+    pub transposed: Vec<bool>,
     /// The fused constraint over the start nonterminal.
     pub constraint: TensorFn,
     pub filters: Vec<HashFilterConfig>,
@@ -100,10 +101,10 @@ pub struct SynthesisPlan {
     pub tokens: Vec<(usize, String, usize)>,
 }
 
-/// Validate a problem and fuse every traced function. With `bit_sliced`,
-/// constructors with a gather are built bit-sliced (CPU only: on a GPU every
-/// thread would keep the sliced buffers in local memory).
-pub fn plan_synthesis(problem: &SynthFun, bit_sliced: bool) -> Result<SynthesisPlan> {
+/// Validate a problem and fuse every traced function. With `use_transposed`,
+/// constructors with a gather are built transposed (CPU only: on a GPU every
+/// thread would keep the transposed buffers in local memory).
+pub fn plan_synthesis(problem: &SynthFun, use_transposed: bool) -> Result<SynthesisPlan> {
     const STAGE: &str = "synthesis lowering";
     let grammar = problem.grammar();
     let widths: HashMap<&str, usize> = grammar
@@ -118,7 +119,7 @@ pub fn plan_synthesis(problem: &SynthFun, bit_sliced: bool) -> Result<SynthesisP
 
     let mut tokens: Vec<(usize, String, usize)> = Vec::new();
     let mut constructors = Vec::new();
-    let mut sliced = Vec::new();
+    let mut transposed = Vec::new();
     let mut filters = Vec::new();
     for nonterminal in grammar.nonterminals() {
         for production in &nonterminal.productions {
@@ -154,7 +155,7 @@ pub fn plan_synthesis(problem: &SynthFun, bit_sliced: bool) -> Result<SynthesisP
                     }
                 }
                 tokens.push((production.token(), production.constructor.clone(), arity));
-                sliced.push(bit_sliced && is_sliced(&graph));
+                transposed.push(use_transposed && is_transposed(&graph));
                 constructors.push(graph);
             }
             let position = tokens.iter().position(|(token, _, _)| *token == production.token()).expect("planned token");
@@ -169,7 +170,7 @@ pub fn plan_synthesis(problem: &SynthFun, bit_sliced: bool) -> Result<SynthesisP
                 constraint: nonterminal.solution.then(|| CONSTRAINT.to_string()),
                 value_bits: nonterminal.width,
                 child_bits: production.children.iter().map(|child| widths[child.as_str()]).collect(),
-                sliced: sliced[position],
+                transposed: transposed[position],
                 commutative: grammar.symmetric(nonterminal, production),
             });
         }
@@ -180,7 +181,7 @@ pub fn plan_synthesis(problem: &SynthFun, bit_sliced: bool) -> Result<SynthesisP
     }
     Ok(SynthesisPlan {
         constructors,
-        sliced,
+        transposed,
         constraint,
         filters,
         token_bits,
@@ -222,12 +223,12 @@ pub fn lower_synthesis(problem: &SynthFun, plan: &SynthesisPlan, options: Synthe
             hashset_create().declare();
             super::hash_filter::hashset_insert().declare();
             print_result.declare();
-            if plan.sliced.contains(&true) {
+            if plan.transposed.contains(&true) {
                 lower_transpose();
             }
-            for (constructor, &sliced) in plan.constructors.iter().zip(&plan.sliced) {
-                if sliced {
-                    lower_sliced_tensor_fn(constructor)?;
+            for (constructor, &transposed) in plan.constructors.iter().zip(&plan.transposed) {
+                if transposed {
+                    lower_transposed_tensor_fn(constructor)?;
                 } else {
                     lower_tensor_fn(constructor)?;
                 }
@@ -235,7 +236,12 @@ pub fn lower_synthesis(problem: &SynthFun, plan: &SynthesisPlan, options: Synthe
             lower_constraint(CONSTRAINT, &plan.constraint)?;
             let hash_widths: BTreeSet<usize> = plan.filters.iter().map(|filter| filter.value_words).collect();
             hash_widths.into_iter().for_each(|words| drop(lower_compute_hash(words)));
-            plan.filters.iter().for_each(|filter| drop(lower_hash_filter(filter)));
+            for filter in &plan.filters {
+                lower_hash_filter(filter);
+                if filter.commutative {
+                    lower_commutative_hash_filter(filter);
+                }
+            }
 
             let body = synthesize.define(|_| {
                 synthesize_body(problem, plan, slots, options, arena_words, solution_words).into()
@@ -349,7 +355,8 @@ fn synthesize_body(
             // Candidates: every rule applied to every positive split of `size - 1`.
             memref::store(0i64, &total, 0, ());
             for production in &nonterminal.productions {
-                for_each_split(&size, production.children.len(), &mut |split| {
+                let filter = plan.filters.iter().find(|filter| filter.rule == production.rule()).expect("planned filter");
+                for_each_split(&size, production.children.len(), filter.commutative, &mut |split| {
                     let rows = production
                         .children
                         .iter()
@@ -368,15 +375,18 @@ fn synthesize_body(
             memref::store(0i64, &start, 0, ());
             for production in &nonterminal.productions {
                 let filter = plan.filters.iter().find(|filter| filter.rule == production.rule()).expect("planned filter");
-                for_each_split(&size, production.children.len(), &mut |split| {
+                for_each_split(&size, production.children.len(), filter.commutative, &mut |split| {
                     let children: Vec<Val> = production.children.iter().zip(split).map(|(child, child_size)| pool(child, child_size)).collect();
                     let rows = children.iter().fold(index(1), |rows, child| arith::muli(rows, memref::dim(child, 0), ()));
                     let searching = arith::cmpi(CmpIPredicate::Eq, memref::load(&found, 0, ()), 0);
                     let mut run = arith::andi(searching, arith::cmpi(CmpIPredicate::Ne, &rows, index(0)));
-                    if filter.commutative {
-                        // Rows are stored in size order, so with a larger first
-                        // child every candidate is the swap of a kept one.
-                        run = arith::andi(run, arith::cmpi(CmpIPredicate::Ule, &split[0], &split[1]));
+                    let same_nonterminal = filter.commutative && production.children[0] == production.children[1];
+                    if filter.commutative && !same_nonterminal {
+                        // Distinct nonterminals have disjoint nonempty pools.
+                        // Order entire pools once, rather than every row pair.
+                        let (_, left, _, _) = memref::extract_strided_metadata(&children[0]);
+                        let (_, right, _, _) = memref::extract_strided_metadata(&children[1]);
+                        run = arith::andi(run, arith::cmpi(CmpIPredicate::Ult, left, right));
                     }
                     scf! {if run}
                         .then(|| {
@@ -391,9 +401,21 @@ fn synthesize_body(
                             operands.extend(children.iter().cloned());
                             operands.extend(split.iter().map(|child_size| arith::muli(child_size, index(plan.token_bits), ())));
                             operands.extend([seen[nonterminal.group.as_str()].clone(), solution.clone(), found.clone()]);
-                            let pool = filter.signature().call(operands)[0].clone();
-                            pool.annotate("no_inline", Attr::Unit);
-                            memref::store(to_i64(&memref::dim(&pool, 0).into()), &start, 0, ());
+                            let call = |signature: Signature| {
+                                let pool = signature.call(operands.clone())[0].clone();
+                                pool.annotate("no_inline", Attr::Unit);
+                                memref::store(to_i64(&memref::dim(&pool, 0).into()), &start, 0, ());
+                                ().into()
+                            };
+                            if same_nonterminal {
+                                // Same nonterminal and size means identical sets
+                                // of children, not merely equal row counts.
+                                scf! {if arith::cmpi(CmpIPredicate::Eq, &split[0], &split[1])}
+                                    .then(|| call(filter.commutative_signature()))
+                                    .else_(|| call(filter.signature()));
+                            } else {
+                                call(filter.signature());
+                            }
                             ().into()
                         })
                         .end();
@@ -413,8 +435,23 @@ fn synthesize_body(
 
 /// Run `body` on every split of `size - 1` into `arity` positive child sizes
 /// (`index` values; the empty split when `arity` is zero and `size` is 1).
-fn for_each_split(size: &Val, arity: usize, body: &mut dyn FnMut(&[Val])) {
+/// For a symmetric binary production, visit only splits with the first child
+/// no larger than the second: pools are stored in size order, so the omitted
+/// candidates swap a kept pair. Identical pools use a triangular filter;
+/// distinct pools are ordered at the call site.
+fn for_each_split(size: &Val, arity: usize, commutative: bool, body: &mut dyn FnMut(&[Val])) {
     let rest = arith::subi(size, index(1), ());
+    if commutative {
+        debug_assert_eq!(arity, 2);
+        let upper = arith::addi(arith::divui(&rest, index(2), ()), index(1), ());
+        scf! {for 1 to upper step 1}.then(|head| {
+            let head: Val = head.into();
+            let tail = arith::subi(&rest, &head, ());
+            body(&[head, tail]);
+            ().into()
+        });
+        return;
+    }
     if arity == 0 {
         scf! {if arith::cmpi(CmpIPredicate::Eq, &rest, index(0))}
             .then(|| {

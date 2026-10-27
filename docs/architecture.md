@@ -154,10 +154,10 @@ the per-nonterminal hash set before claiming a row, and records the first
 candidate whose constraint holds in `%solution`/`%found` for early exit.
 
 Constructors whose fused graph has a `gather` or `gather2` are also built
-bit-sliced (`exec::sliced`): every logical bit is one `i64` word holding
+transposed (`exec::transposed`): every logical bit is one `i64` word holding
 that bit of 64 candidates, so a gather step is one word operation for all
 of them. Their filters iterate over 64-row child blocks: each block is
-turned into bit-sliced form with 64x64 bit transposes, every later child's
+turned into transposed form with 64x64 bit transposes, every later child's
 block rotated by one of 64 shifts so the shifts cover the cartesian product,
 and the 64 results are transposed back and checked one by one.
 `main` prints the solution with a generated, schema-aware printer.

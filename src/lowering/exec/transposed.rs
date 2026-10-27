@@ -1,12 +1,12 @@
-//! Bit-sliced constructors: 64 candidates at once.
+//! Transposed constructors: 64 candidates at once.
 //!
 //! A constructor whose fused graph has a `gather` or `gather2` is also built
-//! bit-sliced: every logical bit of a value is one `i64` word whose bit `k`
+//! transposed: every logical bit of a value is one `i64` word whose bit `k`
 //! belongs to candidate `k`, so each step of a gather combines one bit of 64
 //! candidates with a single word operation:
 //!
 //! ```text
-//! func.func private @define_fun_sliced_<name>(
+//! func.func private @define_fun_transposed_<name>(
 //!     %arg0: memref<<arg0_bits>xi64>, ..., %out: memref<<result_bits>xi64>)
 //!   <input>          the argument buffer
 //!   <const>          a table of 0 / -1 words
@@ -17,8 +17,8 @@
 //!
 //! Temporaries are stack buffers, reused once their last consumer is built.
 //! A production filter (see `hash_filter`) turns blocks of 64 pool rows into
-//! sliced form with 64x64 bit transposes ([`slice_rows`]), and the result
-//! back into 64 packed values ([`unslice_rows`]).
+//! transposed form with 64x64 bit transposes ([`transpose_rows`]), and the result
+//! back into 64 packed values ([`untranspose_rows`]).
 
 use std::collections::HashMap;
 
@@ -31,22 +31,22 @@ use super::{index, invalid, symbol_name, to_index, Result};
 use crate::compile::typing::{expand_reduce_form, ExpandReduceForm, TypeCache};
 use crate::compile::{LogicalOp, TensorExpr, TensorFn};
 
-const STAGE: &str = "bit-sliced lowering";
+const STAGE: &str = "transposed lowering";
 
-/// Name of the bit-sliced function of `constructor`.
-pub fn sliced_symbol(constructor: &str) -> String {
-    format!("define_fun_sliced_{}", symbol_name(constructor))
+/// Name of the transposed function of `constructor`.
+pub fn transposed_symbol(constructor: &str) -> String {
+    format!("define_fun_transposed_{}", symbol_name(constructor))
 }
 
-/// `memref<<bits>xi64>`, a bit-sliced value.
-pub fn sliced_type(bits: usize) -> Ty {
+/// `memref<<bits>xi64>`, a transposed value.
+pub fn transposed_type(bits: usize) -> Ty {
     Ty::memref([Some(bits as u64)], I64)
 }
 
-/// `@define_fun_sliced_<constructor>` for arguments and a result of these widths.
-pub fn sliced_signature(constructor: &str, argument_bits: &[usize], result_bits: usize) -> Signature {
-    let inputs = argument_bits.iter().chain([&result_bits]).map(|&bits| sliced_type(bits));
-    Signature::new(sliced_symbol(constructor), inputs, [])
+/// `@define_fun_transposed_<constructor>` for arguments and a result of these widths.
+pub fn transposed_signature(constructor: &str, argument_bits: &[usize], result_bits: usize) -> Signature {
+    let inputs = argument_bits.iter().chain([&result_bits]).map(|&bits| transposed_type(bits));
+    Signature::new(transposed_symbol(constructor), inputs, [])
 }
 
 /// The operands of a fused node.
@@ -62,7 +62,7 @@ fn children(expression: &TensorExpr) -> Vec<&TensorExpr> {
     }
 }
 
-/// Whether a fused node can be built bit-sliced, and whether it is a gather.
+/// Whether a fused node can be built transposed, and whether it is a gather.
 fn supported(expression: &TensorExpr, types: &mut TypeCache) -> Option<bool> {
     if !types.infer(expression).ok()?.is_flat() {
         return None;
@@ -82,9 +82,9 @@ fn supported(expression: &TensorExpr, types: &mut TypeCache) -> Option<bool> {
     }
 }
 
-/// Whether the (fused) constructor `function` is built bit-sliced: it takes
+/// Whether the (fused) constructor `function` is built transposed: it takes
 /// arguments, has a gather, and every node is flat and supported.
-pub fn is_sliced(function: &TensorFn) -> bool {
+pub fn is_transposed(function: &TensorFn) -> bool {
     if function.inputs.is_empty() {
         return false;
     }
@@ -115,7 +115,7 @@ struct Elements<'e> {
     width: usize,
 }
 
-struct SlicedLowerer<'a, 't> {
+struct TransposedLowerer<'a, 't> {
     inputs: &'a [(String, crate::compile::TensorType)],
     parameters: Vec<Val>,
     types: TypeCache,
@@ -128,7 +128,7 @@ struct SlicedLowerer<'a, 't> {
     free: HashMap<usize, Vec<Val>>,
 }
 
-impl SlicedLowerer<'_, '_> {
+impl TransposedLowerer<'_, '_> {
     fn width(&mut self, expression: &TensorExpr) -> Result<usize> {
         Ok(self.types.infer(expression).map_err(|error| invalid(STAGE, error))?.width())
     }
@@ -137,7 +137,7 @@ impl SlicedLowerer<'_, '_> {
     fn buffer(&mut self, bits: usize) -> Val {
         match self.free.get_mut(&bits).and_then(Vec::pop) {
             Some(buffer) => buffer,
-            None => memref::alloca(sliced_type(bits), (), ()).into(),
+            None => memref::alloca(transposed_type(bits), (), ()).into(),
         }
     }
 
@@ -272,7 +272,7 @@ impl SlicedLowerer<'_, '_> {
             TensorExpr::BTExpandReduce(change) => {
                 let input = self.types.infer(&change.expr).map_err(fail)?;
                 let ExpandReduceForm::Dense(gather) = expand_reduce_form(change, &input).map_err(fail)? else {
-                    return Err(fail("a lane fold is not bit-sliced".into()));
+                    return Err(fail("a lane fold is not transposed".into()));
                 };
                 let elements = Elements {
                     op: gather.op,
@@ -284,7 +284,7 @@ impl SlicedLowerer<'_, '_> {
                 };
                 (self.gather(&elements)?, true)
             }
-            TensorExpr::BTShift(_) => return Err(fail("shifts are not bit-sliced".into())),
+            TensorExpr::BTShift(_) => return Err(fail("shifts are not transposed".into())),
         })
     }
 
@@ -356,10 +356,23 @@ impl SlicedLowerer<'_, '_> {
         if steps == 1 {
             step_body(&index(0));
         } else {
-            scf! {for 0 to (steps) step 1}.then(|step| {
-                step_body(&step.into());
+            let unrolling_factor : usize = 4;
+            let total_in_loop : usize = steps / unrolling_factor * unrolling_factor;
+            scf! {for 0 to (total_in_loop) step (unrolling_factor)}.then(|step| {
+                let mut step: Val = step.into();
+                for _ in 0..unrolling_factor {
+                    step_body(&step);
+                    step = arith::addi(&step, &index(1), ());
+                }
                 ().into()
             });
+
+            if total_in_loop < steps {
+                scf! {for (total_in_loop) to (steps) step 1}.then(|step| {
+                    step_body(&step.into());
+                    ().into()
+                });
+            }
         }
         Ok(out)
     }
@@ -390,16 +403,16 @@ fn uses(root: &TensorExpr) -> HashMap<*const TensorExpr, usize> {
     uses
 }
 
-/// Emit `@define_fun_sliced_<name>` (see the module documentation) into the
+/// Emit `@define_fun_transposed_<name>` (see the module documentation) into the
 /// module being built.
-pub fn lower_sliced_tensor_fn(function: &TensorFn) -> Result<Val> {
+pub fn lower_transposed_tensor_fn(function: &TensorFn) -> Result<Val> {
     let result_bits = result_bits(function)?;
     let argument_bits: Vec<usize> = function.inputs.iter().map(|(_, tensor_type)| tensor_type.width()).collect();
-    let signature = sliced_signature(&function.name, &argument_bits, result_bits);
+    let signature = transposed_signature(&function.name, &argument_bits, result_bits);
     let define = |tables: &mut Tables| -> Result<Val> {
         let mut failure = None;
         let defined = signature.try_define(|parameters| {
-            let mut lowerer = SlicedLowerer {
+            let mut lowerer = TransposedLowerer {
                 inputs: &function.inputs,
                 parameters: parameters[..argument_bits.len()].to_vec(),
                 types: TypeCache::default(),
@@ -425,7 +438,7 @@ pub fn lower_sliced_tensor_fn(function: &TensorFn) -> Result<Val> {
         }
         defined.map_err(|error| invalid(STAGE, error.to_string()))
     };
-    let function_val = define_with_tables(&symbol_name(&format!("sliced_{}", function.name)), define)?;
+    let function_val = define_with_tables(&symbol_name(&format!("transposed_{}", function.name)), define)?;
     function_val.annotate("sym_visibility", Attr::str("private")).annotate("loom.constructor", Attr::str(&function.name));
     Ok(function_val)
 }
@@ -487,10 +500,10 @@ pub fn lane_mask(count: &Val) -> Val {
 }
 
 /// Turn `count` (at most 64) rows of `words`-word values, read by `row(lane,
-/// word)`, into the sliced `out` of `bits` words, every word rotated right
+/// word)`, into the transposed `out` of `bits` words, every word rotated right
 /// by `shift`: lane `k` of `out` holds row `(k + shift) % 64`. Lanes from
 /// `count` on are zero. `scratch` is a `memref<64xi64>`.
-pub fn slice_rows(row: &dyn Fn(&Val, &Val) -> Val, count: &Val, words: usize, bits: usize, shift: &Val, scratch: &Val, out: &Val) {
+pub fn transpose_rows(row: &dyn Fn(&Val, &Val) -> Val, count: &Val, words: usize, bits: usize, shift: &Val, scratch: &Val, out: &Val) {
     let transpose = transpose_signature();
     scf! {for 0 to (words) step 1}.then(|word| {
         let word: Val = word.into();
@@ -516,9 +529,9 @@ pub fn slice_rows(row: &dyn Fn(&Val, &Val) -> Val, count: &Val, words: usize, bi
     });
 }
 
-/// Turn the sliced `sliced` of `bits` words into 64 values of `words` words
+/// Turn the transposed `transposed` of `bits` words into 64 values of `words` words
 /// each, stored by `store(lane, word, value)`. `scratch` is a `memref<64xi64>`.
-pub fn unslice_rows(sliced: &Val, bits: usize, words: usize, scratch: &Val, store: &dyn Fn(&Val, &Val, &Val)) {
+pub fn untranspose_rows(transposed: &Val, bits: usize, words: usize, scratch: &Val, store: &dyn Fn(&Val, &Val, &Val)) {
     let transpose = transpose_signature();
     scf! {for 0 to (words) step 1}.then(|word| {
         let word: Val = word.into();
@@ -526,7 +539,7 @@ pub fn unslice_rows(sliced: &Val, bits: usize, words: usize, scratch: &Val, stor
         scf! {for 0 to 64 step 1}.then(|j| {
             let bit = arith::addi(&first, &j, ());
             let [value] = scf! {if arith::cmpi(CmpIPredicate::Ult, &bit, index(bits))}
-                .then(|| memref::load(sliced, (&bit,), ()).into())
+                .then(|| memref::load(transposed, (&bit,), ()).into())
                 .else_(|| Constant::int(0, I64).into())
                 .try_into()
                 .unwrap();
@@ -572,13 +585,13 @@ mod tests {
             .collect()
     }
 
-    /// The bit-sliced JIT of `function` (at -O0 and -O3) against the
+    /// The transposed JIT of `function` (at -O0 and -O3) against the
     /// reference evaluator, on 64 random candidates at once.
     fn check(function: &TensorFn) {
-        assert!(is_sliced(&fuse(function)), "{} is bit-sliced", function.name);
+        assert!(is_transposed(&fuse(function)), "{} is transposed", function.name);
         let jits: Vec<_> = [0, 3]
             .into_iter()
-            .map(|level| JitFunction::compile_sliced(function, level).unwrap_or_else(|error| panic!("{error}")))
+            .map(|level| JitFunction::compile_transposed(function, level).unwrap_or_else(|error| panic!("{error}")))
             .collect();
         let mut seed = 0x2545f4914f6cdd1d;
         for _ in 0..3 {
@@ -649,7 +662,7 @@ mod tests {
     }
 
     #[test]
-    fn dense_expand_reduce_constants_and_flat_permutes_are_sliced() {
+    fn dense_expand_reduce_constants_and_flat_permutes_are_transposed() {
         let (a, argument) = input("a", 64);
         for op in [LogicalOp::And, LogicalOp::Or, LogicalOp::Xor] {
             let node = BTExpandReduce::new(a.clone(), [D::Batch(4), D::Expand(4), D::Reduce(4), D::Batch(4)], op);
@@ -672,13 +685,13 @@ mod tests {
     }
 
     #[test]
-    fn only_gathers_with_arguments_are_sliced() {
+    fn only_gathers_with_arguments_are_transposed() {
         let (a, argument) = input("a", 40);
         let or = TensorFn::new("or", vec![argument.clone()], BVLogical::new(LogicalOp::Or, [JTReduced::new(a.clone(), [])]));
-        assert!(!is_sliced(&fuse(&or)));
+        assert!(!is_transposed(&fuse(&or)));
         let constant = TensorConstant::new(JaggedTensor::from_flat(vec![5]), TensorType::bitvec(40).unwrap());
-        assert!(!is_sliced(&fuse(&TensorFn::new("constant", Vec::new(), constant))));
-        // A lane fold over a jagged permute that does not fuse is not sliced.
+        assert!(!is_transposed(&fuse(&TensorFn::new("constant", Vec::new(), constant))));
+        // A lane fold over a jagged permute that does not fuse is not transposed.
         let (prefixes, suffixes) = split_rows(40, 3);
         let triple = BVLogical::new(
             LogicalOp::And,
@@ -689,6 +702,6 @@ mod tests {
             ],
         );
         let folded = BVLogical::new(LogicalOp::Or, [JTReduced::new(triple, [1])]);
-        assert!(!is_sliced(&fuse(&TensorFn::new("folded", vec![argument], folded))));
+        assert!(!is_transposed(&fuse(&TensorFn::new("folded", vec![argument], folded))));
     }
 }

@@ -22,9 +22,10 @@
 //! The module is built as a high-mlir expression and converted to a Melior
 //! module ([`to_melior`]) for the MLIR pass pipelines.
 
+pub mod commutative;
 pub mod functions;
 pub mod hash_filter;
-pub mod sliced;
+pub mod transposed;
 pub mod synthesis;
 
 pub use functions::{lower_constraint, lower_tensor_fn};

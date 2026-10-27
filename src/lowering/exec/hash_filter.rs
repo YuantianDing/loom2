@@ -34,13 +34,13 @@
 //! }
 //! ```
 //!
-//! For a bit-sliced constructor (one with a gather, see `sliced`), an
+//! For a transposed constructor (one with a gather, see `transposed`), an
 //! iteration instead covers a tuple of 64-row child blocks and of shifts:
 //!
 //! ```text
 //!   scf.parallel (%linear) = (0) to (blocks(child0) * ... * 64^(arity-1)) step (1) {
-//!     %sliced_i = transpose64(block_i(%child_i)) rotated right by shift_i
-//!     func.call @define_fun_sliced_<constructor>(%sliced..., %out)
+//!     %transposed_i = transpose64(block_i(%child_i)) rotated right by shift_i
+//!     func.call @define_fun_transposed_<constructor>(%transposed..., %out)
 //!     %values = transpose64(%out)              // 64 packed candidates
 //!     for every lane whose child rows exist: hash, store, and check as above
 //!   }
@@ -49,6 +49,10 @@
 //! Lane `k` pairs row `k` of the first block with row `(k + shift_i) % 64` of
 //! block `i`, so the 64 shifts of each later child cover the cartesian
 //! product of the blocks.
+//!
+//! Ordinary filters enumerate the full product. For two identical child
+//! pools, [`super::commutative`] emits a separate triangular filter over
+//! rows or blocks, without symmetry checks inside a transposed block.
 //!
 //! Pool rows always have the layout `[semantic words | preorder token bits]`.
 //! Expression words beyond the used bits are zero, so child expressions can be
@@ -60,8 +64,9 @@ use high_mlir::memref::{self, AtomicRMWKind};
 use high_mlir::vector::{self, Transfer};
 use high_mlir::{scf, Attr, Ty, Val, I1, I64, I8, INDEX};
 
+use super::commutative::{pair, pair_count};
 use super::functions::{define_fun_symbol, packed_type};
-use super::sliced::{lane_mask, rotate_right, slice_rows, sliced_signature, sliced_type, to_i64, unslice_rows};
+use super::transposed::{lane_mask, rotate_right, transpose_rows, transposed_signature, transposed_type, to_i64, untranspose_rows};
 use super::{index, pool_type, pool_view, symbol_name, to_index, words_type};
 
 /// External C ABI provided by `cpp/cpu/i64hashset.cpp`.
@@ -96,14 +101,13 @@ pub struct HashFilterConfig {
     pub child_value_words: Vec<usize>,
     /// Constraint checked for candidates of the start nonterminal.
     pub constraint: Option<String>,
-    /// Logical bits of the result and of each child, for a bit-sliced constructor.
+    /// Logical bits of the result and of each child, for a transposed constructor.
     pub value_bits: usize,
     pub child_bits: Vec<usize>,
-    /// Build 64 candidates at once with the bit-sliced constructor.
-    pub sliced: bool,
-    /// Build one orientation of a commutative constructor: the candidates
-    /// whose first child is stored no later than the second (see
-    /// `Grammar::symmetric`).
+    /// Build 64 candidates at once with the transposed constructor.
+    pub transposed: bool,
+    /// The grammar permits symmetry pruning (see `Grammar::symmetric`).
+    /// Identical child pools may use the specialized commutative filter.
     pub commutative: bool,
 }
 
@@ -119,12 +123,21 @@ impl HashFilterConfig {
 
     /// The filter's signature (see the module documentation).
     pub fn signature(&self) -> Signature {
+        self.signature_named(self.symbol())
+    }
+
+    /// The specialized filter for two identical child pools.
+    pub fn commutative_signature(&self) -> Signature {
+        self.signature_named(format!("commutative_{}", self.symbol()))
+    }
+
+    fn signature_named(&self, symbol: String) -> Signature {
         let arity = self.child_value_words.len();
         let mut inputs = vec![words_type(), INDEX.into(), INDEX.into(), INDEX.into(), INDEX.into(), Ty::memref([Some(1)], I64)];
         inputs.extend(std::iter::repeat_n(pool_type(), arity));
         inputs.extend(std::iter::repeat_n(Ty::from(INDEX), arity));
         inputs.extend([I64.into(), words_type(), Ty::memref([Some(1)], I8)]);
-        Signature::new(self.symbol(), inputs, [pool_type()])
+        Signature::new(symbol, inputs, [pool_type()])
     }
 
     /// `@define_fun_<constructor>` as called by this filter.
@@ -236,9 +249,8 @@ struct Filter<'a> {
     hash: Signature,
     insert: Signature,
     constraint: Option<Signature>,
-    /// Per child pool: its `(offset, row stride)` in the arena, when the
-    /// constructor is commutative.
-    positions: Vec<(Val, Val)>,
+    /// Enumerate unordered row/block pairs from two identical child pools.
+    commutative: bool,
 }
 
 impl Filter<'_> {
@@ -296,35 +308,6 @@ impl Filter<'_> {
         }
     }
 
-    /// The arena position of row `row` of child `child`'s pool.
-    fn position(&self, child: usize, row: &Val) -> Val {
-        let (offset, stride) = &self.positions[child];
-        arith::addi(offset, arith::muli(row, stride, ()), ())
-    }
-
-    /// Whether the candidate of child rows `rows` is the kept orientation
-    /// of a commutative constructor: its first child is stored no later.
-    fn oriented(&self, rows: &[Val]) -> Option<Val> {
-        self.config.commutative.then(|| {
-            arith::cmpi(CmpIPredicate::Ule, self.position(0, &rows[0]), self.position(1, &rows[1]))
-        })
-    }
-
-    /// Run `body` when `condition` (if any) holds.
-    fn when(condition: Option<Val>, body: impl FnOnce()) {
-        match condition {
-            None => body(),
-            Some(condition) => {
-                scf! {if condition}
-                    .then(|| {
-                        body();
-                        ().into()
-                    })
-                    .end();
-            }
-        }
-    }
-
     /// Whether no solution has been found yet (an atomic read of `%found`).
     fn searching(&self) -> Val {
         let state = memref::atomic_rmw(AtomicRMWKind::OrI, 0i8, self.found, 0);
@@ -334,8 +317,15 @@ impl Filter<'_> {
 
 /// Emit one production-specific parallel filter.
 pub fn lower_hash_filter(config: &HashFilterConfig) -> Val {
+    lower_filter(config, false)
+}
+
+/// Shared filter plumbing; the specialized version enumerates the triangle
+/// of row pairs (packed) or block pairs (transposed) from identical child pools.
+pub(super) fn lower_filter(config: &HashFilterConfig, commutative: bool) -> Val {
     let arity = config.child_value_words.len();
-    let function = config.signature().define(|arguments| {
+    let signature = if commutative { config.commutative_signature() } else { config.signature() };
+    let function = signature.define(|arguments| {
         let (arena, offset, capacity, row_words, start, cursor) =
             (&arguments[0], &arguments[1], &arguments[2], &arguments[3], &arguments[4], &arguments[5]);
         let filter = Filter {
@@ -354,24 +344,14 @@ pub fn lower_hash_filter(config: &HashFilterConfig) -> Val {
             constraint: config.constraint.as_ref().map(|symbol| {
                 Signature::new(symbol.clone(), [packed_type(config.value_words * 64)], [I1.into()])
             }),
-            positions: if config.commutative {
-                arguments[6..6 + arity]
-                    .iter()
-                    .map(|pool| {
-                        let (_, offset, _, strides) = memref::extract_strided_metadata(pool);
-                        (offset.into(), strides[0].clone().into())
-                    })
-                    .collect()
-            } else {
-                Vec::new()
-            },
+            commutative,
         };
         // The cursor is caller-provided memory rather than a stack slot, so
         // the loop body may run on a device.
         memref::store(arith::index_cast(start, I64), cursor, 0, ());
         let counts: Vec<Val> = filter.pools.iter().map(|pool| memref::dim(pool, 0).into()).collect();
-        if config.sliced {
-            sliced_body(&filter, &counts);
+        if config.transposed {
+            transposed_body(&filter, &counts);
         } else {
             packed_body(&filter, &counts);
         }
@@ -385,7 +365,8 @@ pub fn lower_hash_filter(config: &HashFilterConfig) -> Val {
         .annotate("loom.token", Attr::Int(config.token as i64, I64.into()))
         .annotate("loom.token_bits", Attr::Int(config.token_bits as i64, I64.into()))
         .annotate("loom.semantic_words", Attr::Int(config.value_words as i64, I64.into()))
-        .annotate("loom.sliced", Attr::Bool(config.sliced));
+        .annotate("loom.transposed", Attr::Bool(config.transposed))
+        .annotate("loom.commutative", Attr::Bool(commutative));
     function
 }
 
@@ -395,28 +376,34 @@ fn packed_body(filter: &Filter, counts: &[Val]) {
     let config = filter.config;
     let arity = counts.len();
     let constructor = config.constructor_signature();
-    let batch = counts.iter().fold(index(1), |batch, rows| arith::muli(batch, rows, ()));
+    let batch = if filter.commutative {
+        pair_count(&counts[0])
+    } else {
+        counts.iter().fold(index(1), |batch, rows| arith::muli(batch, rows, ()))
+    };
     scf! {parallel (0) to (batch) step (1)}.then(|linear| {
         scf! {if filter.searching()}
             .then(|| {
                 // Mixed-radix decode: the last child varies fastest.
                 let mut rows = vec![index(0); arity];
                 let mut rest: Val = linear.clone().into();
-                for child in (0..arity).rev() {
-                    rows[child] = arith::remui(&rest, &counts[child]);
-                    rest = arith::divui(&rest, &counts[child], ());
+                if filter.commutative {
+                    rows = pair(&rest, &counts[0]).into();
+                } else {
+                    for child in (0..arity).rev() {
+                        rows[child] = arith::remui(&rest, &counts[child]);
+                        rest = arith::divui(&rest, &counts[child], ());
+                    }
                 }
-                Filter::when(filter.oriented(&rows), || {
-                    // One vector.transfer_read per child value.
-                    let words: Vec<Val> = (0..arity)
-                        .map(|child| {
-                            let ty = packed_type(config.child_value_words[child] * 64);
-                            vector::transfer_read(&filter.pools[child], (&rows[child], 0), 0i64, ty, in_bounds()).into()
-                        })
-                        .collect();
-                    let value = constructor.call(words)[0].clone();
-                    filter.candidate(&value, &rows);
-                });
+                // One vector.transfer_read per child value.
+                let words: Vec<Val> = (0..arity)
+                    .map(|child| {
+                        let ty = packed_type(config.child_value_words[child] * 64);
+                        vector::transfer_read(&filter.pools[child], (&rows[child], 0), 0i64, ty, in_bounds()).into()
+                    })
+                    .collect();
+                let value = constructor.call(words)[0].clone();
+                filter.candidate(&value, &rows);
                 ().into()
             })
             .end();
@@ -425,19 +412,23 @@ fn packed_body(filter: &Filter, counts: &[Val]) {
 }
 
 /// One parallel iteration per tuple of 64-row child blocks and of shifts:
-/// each block is transposed into bit-sliced form, every child after the
+/// each block is transposed (64x64 bits), every child after the
 /// first rotated by its shift, so lane `k` pairs row `k` of the first block
 /// with row `(k + shift) % 64` of each other block; the 64 shifts of a child
-/// cover the cartesian product of its block with the others. The bit-sliced
+/// cover the cartesian product of its block with the others. The transposed
 /// constructor builds 64 candidates at once, which are transposed back and
 /// checked one by one.
-fn sliced_body(filter: &Filter, counts: &[Val]) {
+fn transposed_body(filter: &Filter, counts: &[Val]) {
     let config = filter.config;
     let arity = counts.len();
-    let constructor = sliced_signature(&config.constructor, &config.child_bits, config.value_bits);
+    let constructor = transposed_signature(&config.constructor, &config.child_bits, config.value_bits);
     let blocks: Vec<Val> = counts.iter().map(|rows| arith::divui(arith::addi(rows, index(63), ()), index(64), ())).collect();
     let shifts = 64usize.pow(arity as u32 - 1);
-    let batch = blocks.iter().fold(index(shifts), |batch, blocks| arith::muli(batch, blocks, ()));
+    let batch = if filter.commutative {
+        arith::muli(pair_count(&blocks[0]), index(shifts), ())
+    } else {
+        blocks.iter().fold(index(shifts), |batch, blocks| arith::muli(batch, blocks, ()))
+    };
     scf! {parallel (0) to (batch) step (1)}.then(|linear| {
         scf! {if filter.searching()}
             .then(|| {
@@ -449,9 +440,13 @@ fn sliced_body(filter: &Filter, counts: &[Val]) {
                     rest = arith::divui(&rest, index(64), ());
                 }
                 let mut first = vec![index(0); arity];
-                for child in (0..arity).rev() {
-                    first[child] = arith::muli(arith::remui(&rest, &blocks[child]), index(64), ());
-                    rest = arith::divui(&rest, &blocks[child], ());
+                if filter.commutative {
+                    first = pair(&rest, &blocks[0]).iter().map(|block| arith::muli(block, index(64), ())).collect();
+                } else {
+                    for child in (0..arity).rev() {
+                        first[child] = arith::muli(arith::remui(&rest, &blocks[child]), index(64), ());
+                        rest = arith::divui(&rest, &blocks[child], ());
+                    }
                 }
                 let present: Vec<Val> =
                     (0..arity).map(|child| arith::minui(index(64), arith::subi(&counts[child], &first[child], ()))).collect();
@@ -459,35 +454,28 @@ fn sliced_body(filter: &Filter, counts: &[Val]) {
                 let mask = (1..arity).fold(lane_mask(&present[0]), |mask, child| {
                     arith::andi(mask, rotate_right(&lane_mask(&present[child]), &shift[child]))
                 });
-                let mut run = arith::cmpi(CmpIPredicate::Ne, &mask, 0);
-                if config.commutative {
-                    // Skip blocks whose every first-child row is stored after
-                    // every second-child row: all their candidates are swaps.
-                    let last = arith::subi(arith::addi(&first[1], &present[1], ()), index(1), ());
-                    let ordered = arith::cmpi(CmpIPredicate::Ule, filter.position(0, &first[0]), filter.position(1, &last));
-                    run = arith::andi(run, ordered);
-                }
+                let run = arith::cmpi(CmpIPredicate::Ne, &mask, 0);
                 scf! {if run}
                     .then(|| {
                         let scratch: Val = memref::alloca(Ty::memref([Some(64)], I64), (), ()).into();
                         let mut arguments: Vec<Val> = (0..arity)
                             .map(|child| {
-                                let sliced: Val = memref::alloca(sliced_type(config.child_bits[child]), (), ()).into();
+                                let transposed: Val = memref::alloca(transposed_type(config.child_bits[child]), (), ()).into();
                                 let pool = &filter.pools[child];
                                 let row = |lane: &Val, word: &Val| {
                                     memref::load(pool, (&arith::addi(&first[child], lane, ()), word), ())
                                 };
                                 let words = config.child_value_words[child];
-                                slice_rows(&row, &present[child], words, config.child_bits[child], &shift[child], &scratch, &sliced);
-                                sliced
+                                transpose_rows(&row, &present[child], words, config.child_bits[child], &shift[child], &scratch, &transposed);
+                                transposed
                             })
                             .collect();
-                        let out: Val = memref::alloca(sliced_type(config.value_bits), (), ()).into();
+                        let out: Val = memref::alloca(transposed_type(config.value_bits), (), ()).into();
                         arguments.push(out.clone());
                         constructor.call(arguments);
                         let values: Val =
                             memref::alloca(Ty::memref([Some(64), Some(config.value_words as u64)], I64), (), ()).into();
-                        unslice_rows(&out, config.value_bits, config.value_words, &scratch, &|lane, word, value| {
+                        untranspose_rows(&out, config.value_bits, config.value_words, &scratch, &|lane, word, value| {
                             memref::store(value, &values, (lane, word), ());
                         });
                         scf! {for 0 to 64 step 1}.then(|lane| {
@@ -508,7 +496,7 @@ fn sliced_body(filter: &Filter, counts: &[Val]) {
                                             arith::addi(&first[child], offset, ())
                                         })
                                         .collect();
-                                    Filter::when(filter.oriented(&rows), || filter.candidate(&value, &rows));
+                                    filter.candidate(&value, &rows);
                                     ().into()
                                 })
                                 .end();

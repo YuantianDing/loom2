@@ -22,6 +22,9 @@ def re_union(a: Strings, b: Strings):
 
 `loom2.synth_fun(output, language=..., grammar=..., constraints=...)` builds
 an executable that prints the smallest expression satisfying the constraints.
+Pass `commutative=[re_union]` to skip swapped operands of binary constructors.
+Reg+ enables this pruning for regex union and intersection by default; pass
+`commutative=()` to its theory's `synth_fun` to disable it.
 
 Calling a compiled function on runtime values runs it through the LLVM JIT.
 The first call traces it, lowers it with the synthesizer's own pipeline and

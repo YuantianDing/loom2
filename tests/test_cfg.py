@@ -193,9 +193,20 @@ class CfgTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             loom2.Cfg(self.theory.grammar, commutative=[f["re.*"]])
 
+    def test_synth_fun_validates_commutative_constructors_before_compilation(self):
+        for function in (self.f["re.*"], self.f["char.0"], object()):
+            with self.subTest(function=function), self.assertRaisesRegex(ValueError, "must be binary"):
+                loom2.synth_fun(
+                    "unused",
+                    language=self.theory.language,
+                    grammar=self.theory.grammar,
+                    constraints=self.constraints,
+                    commutative=[function],
+                )
+
     @unittest.skipUnless(CAN_SYNTHESIZE, "needs the llvm feature")
-    def test_commutativity_keeps_solutions_as_small_packed_and_bit_sliced(self):
-        # Reg+ builds re.union bit-sliced and Reg packed; both stay complete.
+    def test_commutativity_keeps_solutions_as_small_packed_and_transposed(self):
+        # Reg+ builds re.union transposed and Reg packed; both stay complete.
         for family, benchmark_id in (("Reg", "0001"), ("Reg+", "0030")):
             theory, constraints = benchmark_theory(family, benchmark_id)
             f = theory.constructors
@@ -206,6 +217,55 @@ class CfgTests(unittest.TestCase):
             both = self.synthesize(cfg, theory, constraints, max_size=5)
             self.assertEqual(node_count(commuted), node_count(plain), family)
             self.assertEqual(node_count(both), node_count(plain), family)
+
+    @unittest.skipUnless(CAN_SYNTHESIZE, "needs the llvm feature")
+    def test_commutative_filters_cover_full_and_partial_blocks(self):
+        labels = tuple(f"b{i}" for i in range(66))
+        language = loom2.Vec(**dict.fromkeys(labels, bool))
+        indices = loom2.Vec.pytree(**{label: [label] for label in labels})
+
+        def leaf(i):
+            @loom2.compile(name=f"c{i}", jit=False)
+            def constant() -> language:
+                return language({label: j == i for j, label in enumerate(labels)})
+            return constant
+
+        leaves = [leaf(i) for i in range(len(labels))]
+        for transposed, target, distinct in ((False, (0, 65), False), (True, (0, 65), False),
+                                         (True, (64, 65), False), (True, (0, 65), True)):
+            with self.subTest(transposed=transposed, target=target, distinct=distinct):
+                @loom2.compile(jit=False)
+                def union(a: language, b: language):
+                    return (a[indices] | b[indices]).exists() if transposed else a | b
+
+                if distinct:
+                    # Equal counts do not mean identical sets. Both orientations
+                    # are legal, but only the earlier pool goes on the left.
+                    grammar = {"Start": [(union, "B", "A"), (union, "A", "B")],
+                               "A": leaves[:33], "B": leaves[33:]}
+                    groups = {"A": "Leaves", "B": "Leaves"}
+                else:
+                    grammar = {"Start": [(union, "A", "A")], "A": leaves}
+                    groups = {}
+                with tempfile.TemporaryDirectory() as directory:
+                    program = loom2.synth_fun(
+                        Path(directory) / "synth", language=language, grammar=grammar,
+                        groups=groups, commutative=[union], max_size=3, openmp=False,
+                        constraints={label: i in target for i, label in enumerate(labels)},
+                    )
+                    output = program.run()
+                    self.assertTrue(output.startswith("r = "), output)
+                    tree = parse_expression(output[len("r = "):])
+                    self.assertEqual(tree[0], "union", output)
+                    self.assertEqual({child[0] for child in tree[1]}, {f"c{i}" for i in target}, output)
+                    frontend = (Path(directory) / "03-frontend.mlir").read_text()
+                    if not distinct:
+                        self.assertIn("call @commutative_hash_filter_Start_union_rule0", frontend)
+                        signature = next(line for line in frontend.splitlines()
+                                         if "func.func private @commutative_hash_filter_Start_union_rule0" in line)
+                        self.assertIn(f"loom.transposed = {str(transposed).lower()}", signature)
+                    else:
+                        self.assertNotIn("call @commutative_hash_filter_", frontend)
 
     @staticmethod
     def laws(f):

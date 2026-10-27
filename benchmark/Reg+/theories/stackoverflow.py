@@ -167,6 +167,7 @@ def synth_fun(out_file, positives: Iterable[str], negatives: Iterable[str], **op
     definition = theory(positives, negatives)
     constraints = {value: True for value in positives}
     constraints.update({value: False for value in negatives})
+    options.setdefault("commutative", definition.commutative)
     return loom2.synth_fun(
         out_file,
         language=definition.language,

@@ -119,7 +119,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-size", type=int, default=loom2.DEFAULT_MAX_SIZE)
     parser.add_argument("--max-pool-bytes", type=int, default=64 * 1024 * 1024)
     parser.add_argument("--initial-hash-capacity", type=int, default=4096)
-    parser.add_argument("-O", "--opt-level", type=int, choices=range(4), default=1)
+    parser.add_argument("-O", "--opt-level", type=int, choices=range(4), default=2)
     parser.add_argument("--openmp", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--debug-info", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")

@@ -115,7 +115,7 @@ class Cfg:
     @property
     def commutative(self) -> FrozenSet[CompiledFunction]:
         """The constructors with ``f(x, y) = f(y, x)``: the synthesizer
-        builds only one orientation of their applications (see ``synth_fun``)."""
+        prunes symmetric applications (see ``synth_fun``)."""
         return self._commutative
 
     def productions(self, symbol: str) -> Tuple[Production, ...]:

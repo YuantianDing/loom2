@@ -43,6 +43,11 @@ class RegexTheory:
     constructors: Mapping[str, loom2.CompiledFunction]
     grammar: Mapping[str, Sequence[object]]
 
+    @property
+    def commutative(self) -> Tuple[loom2.CompiledFunction, ...]:
+        """Union and intersection may exchange their two operands."""
+        return tuple(self.constructors[name] for name in ("re.union", "re.inter") if name in self.constructors)
+
 
 def _compile(name: str, language: loom2.Vec, implementation: Callable[..., object], arity: int):
     parameters = implementation.__code__.co_varnames[:arity]

@@ -22,8 +22,8 @@ use high_mlir::{builtin, memref, vector, Root, Ty, Tuple, Val, I64};
 use mlir_sys::{mlirExecutionEngineCreate, mlirExecutionEngineDestroy, mlirExecutionEngineLookup, MlirExecutionEngine};
 
 use super::exec::functions::{define_fun_symbol, lower_tensor_fn, packed_type, result_bits};
-use super::exec::sliced::{
-    is_sliced, lower_sliced_tensor_fn, lower_transpose, slice_rows, sliced_signature, sliced_type, unslice_rows,
+use super::exec::transposed::{
+    is_transposed, lower_transposed_tensor_fn, lower_transpose, transpose_rows, transposed_signature, transposed_type, untranspose_rows,
 };
 use super::exec::{index, new_context, to_melior};
 use super::llvm::{lower_to_cpu_mlir, lower_to_llvm_mlir, BackendError, BackendOptions};
@@ -46,7 +46,7 @@ pub struct JitFunction {
     pub result_bits: usize,
     /// The LLVM-dialect module handed to the engine.
     pub llvm_mlir: String,
-    /// Candidates per call: 1, or 64 for a bit-sliced constructor.
+    /// Candidates per call: 1, or 64 for a transposed constructor.
     pub lanes: usize,
 }
 
@@ -84,26 +84,26 @@ impl JitFunction {
         Self::load(&function.name, &module, optimization_level, input_bits, result_bits, 1)
     }
 
-    /// JIT-compile the bit-sliced constructor of `function` (see
-    /// [`sliced`](super::exec::sliced)) behind the same transposes as the
+    /// JIT-compile the transposed constructor of `function` (see
+    /// [`transposed`](super::exec::transposed)) behind the same transposes as the
     /// synthesizer. [`call`](Self::call) then takes 64 candidates: lane `k`'s
     /// inputs at word `k * input_words()`, its result at `k * result_words()`.
-    pub fn compile_sliced(function: &TensorFn, optimization_level: u8) -> Result<Self, BackendError> {
+    pub fn compile_transposed(function: &TensorFn, optimization_level: u8) -> Result<Self, BackendError> {
         let lowering = |error: super::LoweringError| BackendError::Compile(error.to_string());
         let fused = fuse(function);
-        if !is_sliced(&fused) {
-            return Err(BackendError::InvalidOptions(format!("{} is not bit-sliced", function.name)));
+        if !is_transposed(&fused) {
+            return Err(BackendError::InvalidOptions(format!("{} is not transposed", function.name)));
         }
         let input_bits: Vec<usize> = fused.inputs.iter().map(|(_, tensor_type)| tensor_type.width()).collect();
         let result_bits = result_bits(&fused).map_err(lowering)?;
         let input_words: usize = input_bits.iter().map(|&bits| word_count(bits)).sum();
         let result_words = word_count(result_bits);
-        let callee = sliced_signature(&fused.name, &input_bits, result_bits);
+        let callee = transposed_signature(&fused.name, &input_bits, result_bits);
         let buffer = |words: usize| Ty::memref([Some((64 * words) as u64)], I64);
         let mut lowered = Ok(());
         let module = builtin::module(|| {
             lower_transpose();
-            lowered = lower_sliced_tensor_fn(&fused).map(drop);
+            lowered = lower_transposed_tensor_fn(&fused).map(drop);
             Signature::new(ENTRY, [buffer(result_words), buffer(input_words)], []).define(|buffers| {
                 let (output, input) = (&buffers[0], &buffers[1]);
                 let scratch: Val = memref::alloca(Ty::memref([Some(64)], I64), (), ()).into();
@@ -111,19 +111,19 @@ impl JitFunction {
                 let mut arguments = Vec::new();
                 for &bits in &input_bits {
                     let words = word_count(bits);
-                    let sliced: Val = memref::alloca(sliced_type(bits), (), ()).into();
+                    let transposed: Val = memref::alloca(transposed_type(bits), (), ()).into();
                     let row = |lane: &Val, word: &Val| {
                         let at = arith::addi(arith::muli(lane, index(input_words), ()), arith::addi(word, index(offset), ()), ());
                         memref::load(input, (&at,), ())
                     };
-                    slice_rows(&row, &index(64), words, bits, &Constant::int(0, I64).into(), &scratch, &sliced);
-                    arguments.push(sliced);
+                    transpose_rows(&row, &index(64), words, bits, &Constant::int(0, I64).into(), &scratch, &transposed);
+                    arguments.push(transposed);
                     offset += words;
                 }
-                let out: Val = memref::alloca(sliced_type(result_bits), (), ()).into();
+                let out: Val = memref::alloca(transposed_type(result_bits), (), ()).into();
                 arguments.push(out.clone());
                 callee.call(arguments);
-                unslice_rows(&out, result_bits, result_words, &scratch, &|lane, word, value| {
+                untranspose_rows(&out, result_bits, result_words, &scratch, &|lane, word, value| {
                     let at = arith::addi(arith::muli(lane, index(result_words), ()), word, ());
                     memref::store(value, output, (&at,), ());
                 });

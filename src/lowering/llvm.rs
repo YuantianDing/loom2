@@ -216,7 +216,7 @@ pub fn lower_to_cpu_mlir(context: &Context, module: &mut Module, options: &Backe
 /// Move every statically sized `memref.alloca` to the start of its nearest
 /// enclosing `memref.alloca_scope` (with OpenMP, one per parallel
 /// iteration) or else function. Inlined constructors keep buffers on the
-/// stack, also inside loops (over gather steps, sliced lanes, or serial
+/// stack, also inside loops (over gather steps, transposed lanes, or serial
 /// candidates), which would grow the stack every iteration; iterations of
 /// such a loop never overlap, so they can share one buffer.
 fn hoist_static_allocas(module: &mut Module) {

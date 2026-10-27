@@ -44,14 +44,26 @@ def pool_bytes(setting: object) -> int:
 LOOM2_OPENMP_CONFIG = {
     "max_size": 20,
     "timeout_seconds": 600.0,
-    "opt_level": 1,
+    "opt_level": 2,
     "max_pool_bytes": "3/4 available",
-    "initial_hash_capacity": 1 << 20,
+    "initial_hash_capacity": 1 << 29,
     "omp": True,
     "omp_threads": None,
 }
+
+LOOM2_CPU1_CONFIG = {
+    "max_size": 20,
+    "timeout_seconds": 600.0,
+    "opt_level": 2,
+    "max_pool_bytes": "3/4 available",
+    "initial_hash_capacity": 1 << 29,
+    "omp": False,
+    "omp_threads": None,
+}
+
 METHOD_CONFIGS = {
     "loom2.openmp": LOOM2_OPENMP_CONFIG,
+    "loom2.cpu.1": LOOM2_CPU1_CONFIG,
 }
 
 

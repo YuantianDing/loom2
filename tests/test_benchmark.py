@@ -7,6 +7,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -99,6 +100,24 @@ class BenchmarkTests(unittest.TestCase):
         self.assertEqual(len(constraints), 13)
         self.assertEqual(theory.language.bit_width(), 15)
 
+    def test_reg_plus_defaults_to_commutative_union_and_intersection(self):
+        for name in ("deepregex", "stackoverflow", "stackoverflow_regfix"):
+            with self.subTest(theory=name):
+                module = importlib.import_module(f"benchmark.Reg+.theories.{name}")
+                with patch.object(loom2, "synth_fun") as synthesize:
+                    module.synth_fun("unused", ["a"], ["b"])
+                    options = synthesize.call_args.kwargs
+                    constructors = {
+                        entry[0].__name__: entry[0]
+                        for entry in options["grammar"]["Start"]
+                        if isinstance(entry, tuple)
+                    }
+                    expected = tuple(constructors[operator] for operator in ("re.union", "re.inter") if operator in constructors)
+                    self.assertTrue(expected)
+                    self.assertEqual(options["commutative"], expected)
+                    module.synth_fun("unused", ["a"], ["b"], commutative=())
+                    self.assertEqual(synthesize.call_args.kwargs["commutative"], ())
+
     def test_theory_agrees_with_python_regular_expressions(self):
         theory, _ = benchmark_theory("Reg+", "0030")
         language, constructors = theory.language, theory.constructors
@@ -129,6 +148,7 @@ class BenchmarkTests(unittest.TestCase):
                 language=theory.language,
                 grammar=theory.grammar,
                 constraints=constraints,
+                commutative=theory.commutative,
                 artifact_dir=directory,
                 max_size=4,
             )
@@ -145,6 +165,8 @@ class BenchmarkTests(unittest.TestCase):
             operations = re.findall(r"(?:^\s*|= )([a-z_]+)\.[a-z_]+", frontend, re.MULTILINE)
             self.assertLessEqual(set(operations), {"func", "arith", "scf", "memref", "vector"})
             self.assertIn("vector.transfer_read", frontend)
+            manifest = json.loads((Path(directory) / "manifest.json").read_text())
+            self.assertEqual(manifest["options"]["commutative"], ["re.inter", "re.union"])
             cpu = (Path(directory) / "04-cpu.mlir").read_text()
             self.assertIn("omp.parallel", cpu)
             self.assertNotIn("xi1>", cpu)

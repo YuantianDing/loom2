@@ -6,6 +6,7 @@ import importlib
 import json
 import os
 import re
+import signal
 import sqlite3
 import subprocess
 import sys
@@ -41,33 +42,93 @@ def text(value: str | bytes | None) -> str:
     return value or ""
 
 
-def run(command: list[str], timeout: float, environment: dict[str, str]) -> dict[str, Any]:
-    started = time.monotonic()
+def kill_group(process: subprocess.Popen) -> None:
+    """SIGKILL the process group of `process` (its own: see `run`), so no
+    child it started outlives the run; a group that is gone is ignored."""
     try:
-        process = subprocess.run(
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+
+
+def matching_processes(marker: str) -> list[tuple[int, str]]:
+    """`(pid, command line)` of every live process with `marker` in its name
+    or arguments, except this process and its ancestors."""
+    excluded = set()
+    pid = os.getpid()
+    while pid > 1:
+        excluded.add(pid)
+        try:
+            pid = int(Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()[1])
+        except (OSError, ValueError, IndexError):
+            break
+    found = []
+    for entry in Path("/proc").iterdir():
+        if not entry.name.isdigit() or int(entry.name) in excluded:
+            continue
+        try:
+            state = (entry / "stat").read_text().rsplit(")", 1)[1].split()[0]
+            name = (entry / "comm").read_text().strip()
+            arguments = (entry / "cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace").strip()
+        except OSError:
+            continue  # exited while being read
+        if state != "Z" and (marker in name or marker in arguments):
+            found.append((int(entry.name), arguments or name))
+    return found
+
+
+def wait_for_marker(process: subprocess.Popen, marker: str) -> None:
+    """Spin until no process has `marker` in its name or arguments,
+    SIGKILLing `process`'s group again on every pass. Processes outside the
+    group are waited for, not killed; they are reported every 10 seconds."""
+    started = reported = time.monotonic()
+    while True:
+        remaining = matching_processes(marker)
+        if not remaining:
+            return
+        kill_group(process)
+        if time.monotonic() - reported >= 10:
+            reported = time.monotonic()
+            waited = reported - started
+            print(f"waiting {waited:.0f}s for processes with {marker!r}: {remaining}", file=sys.stderr, flush=True)
+        time.sleep(0.01)
+
+
+def run(command: list[str], timeout: float, environment: dict[str, str], marker: str) -> dict[str, Any]:
+    """Run `command` in a new process group, which is SIGKILLed afterwards;
+    then wait until no process has `marker` (the benchmark id) in its name
+    or arguments (see `wait_for_marker`).
+
+    Output goes to temporary files rather than pipes, so the run ends when
+    `command` exits even if a child it left behind still holds them open.
+    """
+    started = time.monotonic()
+    with tempfile.TemporaryFile("w+") as stdout, tempfile.TemporaryFile("w+") as stderr:
+        process = subprocess.Popen(
             command,
             cwd=config.LOOM2,
             env=environment,
             text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=timeout,
+            stdout=stdout,
+            stderr=stderr,
+            start_new_session=True,
         )
-    except subprocess.TimeoutExpired as error:
-        return {
-            "status": "timeout",
-            "seconds": time.monotonic() - started,
-            "returncode": None,
-            "stdout": text(error.stdout),
-            "stderr": text(error.stderr),
-        }
-    return {
-        "status": "done" if process.returncode == 0 else "error",
-        "seconds": time.monotonic() - started,
-        "returncode": process.returncode,
-        "stdout": text(process.stdout),
-        "stderr": text(process.stderr),
-    }
+        try:
+            returncode = process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            returncode = None
+        finally:
+            kill_group(process)
+            process.wait()
+            wait_for_marker(process, marker)
+        stdout.seek(0)
+        stderr.seek(0)
+        output = {"stdout": stdout.read(), "stderr": stderr.read()}
+    if returncode is None:
+        status = "timeout"
+    else:
+        status = "done" if returncode == 0 else "error"
+    return {"status": status, "seconds": time.monotonic() - started, "returncode": returncode, **output}
 
 
 def family_directory(bench_set: str, bench_id: str) -> Path:
@@ -174,10 +235,10 @@ def compute_loom2_openmp(directory: Path, bench_id: str, method_configs: Mapping
             "-O", str(method_configs["opt_level"]),
             "--openmp" if method_configs.get("omp", True) else "--no-openmp",
         ]
-        compiled = run(command, timeout, environment)
+        compiled = run(command, timeout, environment, bench_id)
         executables = sorted(Path(temporary).glob("08-*"))
         executed = (
-            run([str(executables[0])], timeout, environment)
+            run([str(executables[0])], timeout, environment, bench_id)
             if compiled["status"] == "done" and executables
             else None
         )
